@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Lita - Birthday Edition</title>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* === RESET & CONTAINER === */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { background-color: #efeef1; display: flex; justify-content: center; align-items: center; height: 100dvh; overflow: hidden; }
+
+#app {
+    width: 100%; max-width: 400px; background-color: #ffffff;
+    height: 100dvh; position: relative; overflow: hidden;
+    box-shadow: 0 0 30px rgba(0,0,0,0.12);
+    display: flex; flex-direction: column;
+}
+
+/* Every screen is its own scroll region inside the fixed phone frame, and the
+   bottom-nav/floating bars are positioned absolute to #app (not fixed to the
+   browser viewport). This is the fix for the nav bar misalignment: previously
+   fixed elements measured against the real viewport, so on wide desktop or
+   odd-aspect mobile viewports the bar detached from the 400px app frame. */
+.screen { display: none; flex: 1; min-height: 0; background: #fff; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.screen::-webkit-scrollbar { display: none; }
+.screen.active { display: flex; flex-direction: column; }
+.screen-scroll { flex: 1; overflow-y: auto; padding-bottom: 90px; }
+.screen-scroll::-webkit-scrollbar { display: none; }
+
+/* === FLOATING NOTIFICATION === */
+.floating-notif {
+    position: absolute; top: -150px; left: 50%; transform: translateX(-50%);
+    width: 90%; max-width: 360px; background: #fff;
+    border-radius: 14px; padding: 12px 15px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 9999;
+    transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex; gap: 12px; align-items: center; border: 1px solid #f0f0f0; cursor: pointer;
+}
+.floating-notif.show { top: 20px; }
+.notif-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.notif-content { flex: 1; min-width: 0; }
+.notif-name { font-size: 14px; font-weight: 800; color: #111; margin-bottom: 2px; display: flex; justify-content: space-between;}
+.notif-text { font-size: 12px; color: #666; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* === HEADER GENERAL === */
+.header-nav { display: flex; align-items: center; padding: 15px 20px; background: #fff; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #f5f5f5; }
+.header-nav i { font-size: 20px; color: #333; cursor: pointer; margin-right: 15px; }
+.header-nav h2 { font-size: 16px; font-weight: 800; color: #111; flex: 1; }
+
+/* === 1. SCREEN BERANDA === */
+.home-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 20px 10px; background: linear-gradient(180deg, #f3e5f5 0%, #ffffff 100%); position: relative; z-index: 2; }
+.home-header h1 { font-size: 24px; font-weight: 800; color: #111; }
+.home-header i { font-size: 20px; color: #444; }
+
+/* --- Birthday hero with CSS-only celebration animation (no icon packs / AI-flavored clip art) --- */
+.bday-hero { position: relative; margin: 4px 20px 10px; border-radius: 18px; overflow: hidden; padding: 22px 18px 20px; background: linear-gradient(150deg, #fff0f6 0%, #f6ecff 55%, #eef3ff 100%); border: 1px solid #f6d9ea; }
+.bday-hero-stage { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+
+.confetto { position: absolute; top: -20px; opacity: 0.9; border-radius: 1px; animation: confetti-fall linear infinite; }
+@keyframes confetti-fall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+    8%   { opacity: 0.95; }
+    100% { transform: translateY(220px) rotate(300deg); opacity: 0; }
+}
+
+.bday-balloon { position: absolute; bottom: -60px; width: 26px; height: 34px; border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%; animation: balloon-rise 7s ease-in infinite; }
+.bday-balloon::after { content: ''; position: absolute; left: 50%; top: 100%; width: 1px; height: 26px; background: rgba(0,0,0,0.15); transform: translateX(-50%); }
+.bday-balloon::before { content: ''; position: absolute; left: 50%; bottom: -4px; width: 6px; height: 6px; background: inherit; clip-path: polygon(0 0, 100% 0, 50% 100%); transform: translateX(-50%); }
+@keyframes balloon-rise {
+    0%   { transform: translateY(0) translateX(0) rotate(-4deg); opacity: 0; }
+    10%  { opacity: 0.95; }
+    50%  { transform: translateY(-140px) translateX(8px) rotate(4deg); }
+    100% { transform: translateY(-280px) translateX(-6px) rotate(-4deg); opacity: 0; }
+}
+
+.bday-sparkle { position: absolute; width: 10px; height: 10px; opacity: 0; animation: sparkle-pop 2.6s ease-in-out infinite; }
+.bday-sparkle::before, .bday-sparkle::after {
+    content: ''; position: absolute; background: #ffb703; border-radius: 2px;
+}
+.bday-sparkle::before { top: 50%; left: 0; width: 100%; height: 2px; transform: translateY(-50%); }
+.bday-sparkle::after { left: 50%; top: 0; width: 2px; height: 100%; transform: translateX(-50%); }
+@keyframes sparkle-pop {
+    0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+    50% { opacity: 0.9; transform: scale(1.1) rotate(90deg); }
+}
+
+.bday-hero-content { position: relative; z-index: 2; }
+.bday-title { font-size: 14px; font-weight: 800; color: #d81b60; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;}
+.bday-text { font-size: 12px; color: #555; line-height: 1.55; font-weight: 600; }
+.bday-text p { margin-bottom: 8px; }
+.bday-text p:last-child { margin-bottom: 0; }
+
+.section-title { font-size: 15px; font-weight: 800; color: #111; margin: 22px 20px 15px; }
+
+.grid-menu { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px 10px; padding: 0 20px; }
+.menu-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+.menu-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+.menu-item span { font-size: 11px; font-weight: 600; color: #444; text-align: center; }
+
+.bg-ml { background: #e3f2fd; color: #1565c0; }
+.bg-curhat { background: #fff3e0; color: #ef6c00; }
+.bg-movie { background: #e8f5e9; color: #2e7d32; }
+.bg-sleep { background: #f3e5f5; color: #6a1b9a; }
+.bg-cake { background: #fce4ec; color: #c2185b; }
+.bg-gift { background: #fff8e1; color: #f57f17; }
+.bg-wish { background: #e0f7fa; color: #00838f; }
+.bg-more { background: #f5f5f5; color: #616161; }
+
+.banner-row { display: flex; gap: 10px; padding: 20px; }
+.banner { flex: 1; border-radius: 12px; padding: 12px; position: relative; overflow: hidden; color: white; }
+.banner-1 { background: linear-gradient(90deg, #ff5252, #ff9100); }
+.banner-2 { background: linear-gradient(90deg, #536dfe, #b388ff); }
+.banner h4 { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+.banner p { font-size: 10px; font-weight: 600; opacity: 0.9; }
+
+/* Card Gamer Universal */
+.list-mabar { padding: 0 20px 20px; }
+.card-mabar { display: flex; gap: 12px; margin-bottom: 15px; cursor: pointer; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f5f5f5; transition: transform 0.15s ease; }
+.card-mabar:active { transform: scale(0.98); }
+.card-img-wrap { position: relative; width: 75px; height: 75px; flex-shrink: 0; }
+.card-img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; }
+.card-info { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.card-name { font-size: 14px; font-weight: 800; color: #111; display: flex; align-items: center; gap: 5px; }
+.online-dot { width: 8px; height: 8px; background: #00E676; border-radius: 50%; flex-shrink: 0; }
+.tags-row { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+.tag { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+.tag-game { background: #e0f2f1; color: #00897b; }
+.tag-rank { background: #fff3e0; color: #ef6c00; }
+.tag-locked { background: #f1f1f1; color: #888; }
+.card-desc { font-size: 11px; color: #888; margin-top: 6px; line-height: 1.3; }
+
+/* === 2. SCREEN GAMER LIST === */
+#screen-gamer-list .screen-scroll { background: #fafafa; }
+
+/* === 3. SCREEN ORDER (richer, per-service UI) === */
+#screen-order .screen-scroll { background: #fafafa; }
+.order-card { background: #fff; margin: 15px 20px; border-radius: 14px; padding: 20px; border: 1px solid #eee; }
+.gamer-profile-order { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0; }
+.gamer-profile-order img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.gamer-profile-order .gpo-name { display: flex; align-items: center; gap: 5px; }
+.gamer-profile-order .gpo-sub { font-size: 11px; color: #888; margin-top: 2px; }
+
+.service-banner { display: flex; align-items: center; gap: 10px; background: linear-gradient(90deg, #fdf2f8, #f3e8ff); border: 1px solid #f3d9ec; padding: 12px 14px; border-radius: 10px; margin-bottom: 18px; }
+.service-banner .sb-icon { width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; color: #d81b60; font-size: 14px; flex-shrink: 0; }
+.service-banner .sb-text { flex: 1; }
+.service-banner .sb-label { font-size: 10px; color: #b23a76; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+.service-banner .sb-name { font-size: 13px; font-weight: 800; color: #333; }
+
+.input-group { margin-top: 15px; }
+.input-label { font-size: 12px; font-weight: 700; color: #555; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.input-hint { font-size: 10px; color: #999; font-weight: 600; margin: -10px 0 12px; }
+.custom-input { width: 100%; background: #fff; border: 1px solid #ddd; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 4px; outline: none; }
+.custom-input:focus { border-color: #b388ff; }
+textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
+
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; margin-top: -2px; }
+.chip { font-size: 11px; font-weight: 700; padding: 7px 12px; border-radius: 20px; background: #f5f5f5; color: #555; cursor: pointer; border: 1px solid transparent; transition: 0.15s; }
+.chip.active { background: #fce4f4; color: #c2185b; border-color: #f4b8d8; }
+
+.order-note-box { display: flex; gap: 10px; background: #fff8e1; border: 1px solid #ffe8a3; border-radius: 10px; padding: 12px 14px; margin-top: 4px; font-size: 11px; color: #8a6d1a; line-height: 1.5; }
+.order-note-box i { color: #f57f17; margin-top: 1px; }
+
+.order-bottom {
+    position: absolute; bottom: 60px; left: 0; width: 100%; background: #fff;
+    padding: 12px 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid #eee; z-index: 10;
+}
+.btn-order { background: linear-gradient(90deg, #9c27b0, #ff4081); color: #fff; padding: 12px 26px; border-radius: 30px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; }
+
+/* === 4. SCREEN CHAT ROOM === */
+#screen-chat .screen-scroll { background: #f5f6f8; }
+.chat-header { background: #fff; padding: 15px 20px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #eee; }
+.chat-header i { font-size: 20px; cursor: pointer; }
+.chat-header img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+.chat-header .info h2 { font-size: 14px; font-weight: 800; margin: 0; }
+.chat-header .info p { font-size: 11px; color: #00E676; margin: 0; font-weight: 600;}
+
+.chat-container { padding: 20px; padding-bottom: 90px; display: flex; flex-direction: column; gap: 15px; }
+.chat-bubble { max-width: 85%; background: #fff; padding: 12px 15px; border-radius: 0 12px 12px 12px; font-size: 13px; color: #333; line-height: 1.5; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.05); align-self: flex-start; }
+
+.chat-input-area { position: absolute; bottom: 60px; left: 0; width: 100%; background: #fff; padding: 10px 20px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0)); display: flex; align-items: center; gap: 10px; border-top: 1px solid #eee; z-index: 10; }
+.chat-input-area input { flex: 1; background: #f0f0f0; border: none; padding: 10px 15px; border-radius: 20px; outline: none; font-size: 13px; }
+.chat-input-area .send-btn { width: 35px; height: 35px; background: #ff4081; color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+
+/* === 5. SCREEN GAMER PROFILE (RIN) === */
+#screen-rin-profile .screen-scroll { background: #fff; padding-bottom: 20px; }
+.rin-cover { width: 100%; height: 300px; position: relative; flex-shrink: 0; overflow: hidden; background: #eee; }
+.rin-cover-track { display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.22,0.9,0.32,1); }
+.rin-cover-slide { min-width: 100%; height: 100%; flex-shrink: 0; }
+.rin-cover-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rin-cover-dots { position: absolute; bottom: 14px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; z-index: 2; }
+.rin-cover-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); transition: 0.2s; cursor: pointer; }
+.rin-cover-dots span.active { background: #fff; width: 16px; border-radius: 3px; }
+.rin-cover-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.28); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; z-index: 2; }
+.rin-cover-arrow.prev { left: 12px; }
+.rin-cover-arrow.next { right: 12px; }
+.rin-back { position: absolute; top: 20px; left: 20px; font-size: 24px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); cursor: pointer; z-index: 2; }
+.rin-info-box { padding: 20px; }
+.rin-info-box h2 { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.voice-note { background: #f3e5f5; color: #8e24aa; display: inline-flex; align-items: center; gap: 10px; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: 800; margin: 15px 0; }
+.bio-text { font-size: 13px; color: #555; line-height: 1.6; }
+
+/* === 6. SCREEN PROFIL USER (rich, mostly non-interactive like the reference) === */
+#screen-user-profile .screen-scroll { background: linear-gradient(180deg, #f2eefc 0%, #f8f9fb 220px); padding-bottom: 90px; }
+.prof-header-card { margin: 16px 20px 0; background: #fff; border-radius: 16px; padding: 22px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+.prof-avatar { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 0 0 2px #e6d6fb; }
+.prof-header-text { flex: 1; min-width: 0; }
+.prof-name { font-size: 17px; font-weight: 800; color: #111; }
+.prof-id { font-size: 11px; color: #888; margin-top: 3px; display: flex; align-items: center; gap: 5px; }
+.prof-id span.badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 10px; }
+.prof-cal { width: 40px; height: 40px; border-radius: 10px; background: #fdeef6; display: flex; align-items: center; justify-content: center; color: #d81b60; font-size: 15px; position: relative; flex-shrink: 0; }
+.prof-cal .dot { position: absolute; top: 4px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: #ff3b30; }
+
+.prof-stats { display: flex; margin: 14px 20px 0; background: #fff; border-radius: 14px; padding: 14px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+.p-stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; }
+.p-stat:not(:last-child)::after { content:''; position: absolute; right: 0; top: 4px; bottom: 4px; width: 1px; background: #f0f0f0; }
+.p-stat h3 { font-size: 16px; font-weight: 800; color: #111; }
+.p-stat span { font-size: 10.5px; color: #888; font-weight: 600; }
+
+.prof-vip-bar { margin: 14px 20px 0; border-radius: 14px; overflow: hidden; background: linear-gradient(100deg, #ffd76a, #ffb238); }
+.prof-vip-top { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #5a3a00; font-weight: 800; font-size: 13px; }
+.prof-vip-top i { font-size: 15px; }
+.prof-vip-top .chev { margin-left: auto; opacity: 0.7; }
+.prof-vip-bottom { background: #241a3d; display: flex; color: #fff; }
+.prof-vip-bottom .vb { flex: 1; display: flex; align-items: center; gap: 8px; padding: 11px 14px; font-size: 12px; font-weight: 700; }
+.prof-vip-bottom .vb + .vb { border-left: 1px solid rgba(255,255,255,0.12); }
+.prof-vip-bottom .vb small { display: block; font-size: 9.5px; color: #b8aee0; font-weight: 700; }
+.prof-vip-bottom .vb .icon-dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+
+.prof-grid { background: #fff; margin: 14px 20px 0; border-radius: 14px; padding: 18px 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 6px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+.p-icon-item { display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: default; user-select: none; }
+.p-icon-item .p-icon { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.p-icon-text { font-size: 10.5px; font-weight: 700; color: #555; }
+.p-icon.wallet { background: #fff3d6; color: #e0a300; }
+.p-icon.order { background: #ece3ff; color: #7c4dff; }
+.p-icon.coupon { background: #ffe1ec; color: #ff4081; }
+.p-icon.backpack { background: #ffe3e0; color: #ff5252; }
+.p-icon.family { background: #dcf3ff; color: #039be5; }
+.p-icon.bangsawan { background: #fff0d6; color: #f2a900; }
+
+.prof-promo { margin: 14px 20px 0; border-radius: 14px; overflow: hidden; position: relative; height: 130px; background: linear-gradient(120deg, #2b1955, #5b2a86 55%, #1c1440); }
+.prof-promo-inner { position: relative; z-index: 2; padding: 16px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+.prof-promo-inner h4 { color: #fff; font-size: 17px; font-weight: 800; letter-spacing: 0.01em; }
+.prof-promo-inner p { color: #d9c8ff; font-size: 10.5px; font-weight: 600; margin-top: 6px; line-height: 1.5; max-width: 75%; }
+.prof-promo-glow { position: absolute; width: 140px; height: 140px; right: -30px; top: -30px; background: radial-gradient(circle, rgba(179,136,255,0.5), transparent 70%); }
+.prof-promo-dots { position: absolute; bottom: 8px; left: 0; right: 0; display: flex; justify-content: center; gap: 4px; z-index: 2; }
+.prof-promo-dots span { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.35); }
+.prof-promo-dots span:first-child { background: #fff; width: 14px; border-radius: 3px; }
+
+.prof-dash { margin: 14px 20px 0; border-radius: 14px; overflow: hidden; background: linear-gradient(100deg, #21c9c9, #1aa7e8); padding: 14px 16px; }
+.prof-dash-top { display: flex; align-items: center; color: #fff; font-weight: 800; font-size: 13px; }
+.prof-dash-top .new-pill { background: #ff3b6e; font-size: 9px; padding: 2px 8px; border-radius: 20px; margin-left: 8px; font-weight: 800; }
+.prof-dash-top .chev { margin-left: auto; opacity: 0.85; }
+.prof-dash-row { background: #fff; border-radius: 12px; margin-top: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+.prof-dash-row .icon-dot { width: 30px; height: 30px; border-radius: 50%; background: #eaf7ff; color: #1aa7e8; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.prof-dash-row .label { flex: 1; font-size: 13px; font-weight: 700; color: #333; }
+.prof-dash-row .score { font-size: 13px; font-weight: 800; color: #111; }
+
+.prof-locked-hint { text-align: center; font-size: 10.5px; color: #aaa; font-weight: 700; margin: 16px 20px 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* === 7. SCREEN RIN PROFILE (full — this reuses styles above under #screen-rin-profile) === */
+.rin-stat-row { display: flex; gap: 14px; margin-top: 6px; }
+.rin-stat-row .rs { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 800; }
+.rin-stat-row .rs.coin { color: #e0a300; }
+.rin-stat-row .rs.key { color: #d6489a; }
+.rin-followers { font-size: 12px; color: #888; margin-top: 6px; }
+.rin-gallery-title { font-size: 15px; font-weight: 800; margin: 22px 0 12px; }
+.rin-rel-card { background: #fdeef2; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+.rin-rel-card .rr-label { font-size: 13px; font-weight: 800; color: #c2185b; flex-shrink: 0; }
+.rin-rel-avatars { display: flex; gap: -6px; flex: 1; }
+.rin-rel-avatars .ra { width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 1px solid #f3c9dc; display: flex; align-items: center; justify-content: center; color: #ddb0c6; font-size: 13px; margin-left: -8px; }
+.rin-rel-avatars .ra:first-child { margin-left: 0; }
+.rin-rel-card .rr-chev { color: #d78aab; }
+.rin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.rin-mini-card { border-radius: 12px; padding: 14px; }
+.rin-mini-card.spender { background: #eaf1ff; }
+.rin-mini-card.gift { background: #fff6e0; }
+.rin-mini-card h5 { font-size: 13px; font-weight: 800; color: #222; margin-bottom: 10px; }
+.rin-mini-avatars { display: flex; align-items: center; gap: -6px; }
+.rin-mini-avatars .ma { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 1px solid #d9e4ff; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #6a8dff; margin-left: -8px; }
+.rin-mini-avatars .ma:first-child { margin-left: 0; }
+.rin-mini-avatars .ma-rank { position: absolute; top: -4px; left: -4px; font-size: 8px; background: #ffb238; color: #fff; border-radius: 50%; width: 13px; height: 13px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+.rin-mini-avatars .maw { position: relative; }
+.rin-mini-card.gift .pill { display: inline-block; background: #fff; font-size: 9px; font-weight: 800; color: #b98600; padding: 3px 8px; border-radius: 20px; }
+.rin-actions { display: flex; gap: 12px; margin-top: 20px; }
+.rin-actions button { flex: 1; padding: 13px; border: none; border-radius: 30px; font-weight: 800; font-size: 13px; cursor: not-allowed; opacity: 0.55; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.rin-actions .btn-edit { background: #2fb6ff; color: #fff; }
+.rin-actions .btn-post { background: #ffb238; color: #fff; }
+.rin-locked-note { text-align: center; font-size: 10.5px; color: #aaa; font-weight: 700; margin-top: 10px; }
+
+/* === RIVAL TRIGGER CARD (Han/Go replaced with fictional rivals) === */
+.card-mabar.rival { position: relative; }
+.rival-veil { position: absolute; inset: 0; border-radius: 12px; background: rgba(255,255,255,0.0); display: flex; align-items: center; justify-content: center; }
+.rival-tap-hint { font-size: 9.5px; font-weight: 800; color: #b23a76; background: #fdeef6; padding: 3px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; width: fit-content; }
+
+.rival-slap-overlay {
+    position: absolute; inset: 0; z-index: 500; display: none;
+    align-items: center; justify-content: center; background: rgba(10,6,20,0);
+    transition: background 0.25s ease;
+}
+.rival-slap-overlay.show { display: flex; background: rgba(10,6,20,0.55); }
+.rival-slap-card {
+    width: 82%; background: #1c1424; border-radius: 18px; padding: 26px 20px; text-align: center;
+    transform: scale(0.6) rotate(-4deg); opacity: 0;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+.rival-slap-overlay.show .rival-slap-card { animation: slap-in 0.42s cubic-bezier(0.22, 1.6, 0.36, 1) forwards; }
+@keyframes slap-in {
+    0%   { transform: scale(0.5) rotate(-8deg); opacity: 0; }
+    55%  { transform: scale(1.08) rotate(2deg); opacity: 1; }
+    75%  { transform: scale(0.97) rotate(-1deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.rival-slap-icon { font-size: 34px; color: #ff4d6d; margin-bottom: 10px; }
+.rival-slap-title { color: #fff; font-size: 17px; font-weight: 900; letter-spacing: 0.01em; margin-bottom: 8px; }
+.rival-slap-text { color: #c9bfd6; font-size: 12.5px; font-weight: 600; line-height: 1.6; margin-bottom: 18px; }
+.rival-slap-btn { background: linear-gradient(90deg, #9c27b0, #ff4081); color: #fff; border: none; padding: 11px 28px; border-radius: 30px; font-weight: 800; font-size: 13px; cursor: pointer; }
+
+/* === BOTTOM NAV === */
+.bottom-nav {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; background: white;
+    border-top: 1px solid #eaeaea; display: flex; justify-content: space-around; align-items: center;
+    z-index: 100; padding: 0 10px; padding-bottom: env(safe-area-inset-bottom, 0);
+}
+/* Disembunyikan pada screen yang punya header/back sendiri (chat, rin-profile) */
+.bottom-nav.hidden { display: none; }
+.nav-item { width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; }
+.nav-item svg { width: 22px; height: 22px; fill: none; stroke: #555; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: 0.2s;}
+.nav-item.active svg { stroke: #7c4dff; }
+.nav-item.active svg.icon-game { fill: url(#game-gradient); fill-opacity: 0.16; stroke: #7c4dff; stroke-width: 2.2; width: 25px; height: 25px; }
+.chat-badge { position: absolute; top: 6px; right: 4px; background: #ff3b30; color: white; font-size: 9px; font-weight: bold; width: 15px; height: 15px; border-radius: 50%; display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
+
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<svg width="0" height="0" style="position:absolute;">
+    <defs>
+        <linearGradient id="game-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#b388ff" />
+            <stop offset="100%" stop-color="#7c4dff" />
+        </linearGradient>
+    </defs>
+</svg>
+
+<div id="floating-notif" class="floating-notif" onclick="navigasi('screen-chat')">
+    <img src="leyza1.jpeg" class="notif-img">
+    <div class="notif-content">
+        <div class="notif-name">Leyzaa <span style="font-size:10px; color:#888;">Just now</span></div>
+        <div class="notif-text" id="notif-text-msg">Pesan masuk...</div>
+    </div>
+</div>
+
+<!-- RIVAL "SLAP" TRIGGER OVERLAY (shared by all rival cards) -->
+<div id="rival-slap-overlay" class="rival-slap-overlay">
+    <div class="rival-slap-card">
+        <div class="rival-slap-icon"><i class="fa-solid fa-hand"></i></div>
+        <div class="rival-slap-title" id="rival-slap-title">BANGUN.</div>
+        <div class="rival-slap-text" id="rival-slap-text">Dia nggak akan pernah balas chat-mu. Leyzaa di sini, online, dan beneran nungguin kamu.</div>
+        <button class="rival-slap-btn" onclick="closeSlapAndGoRin()">Balik ke Leyzaa</button>
+    </div>
+</div>
+
+<!-- ===================== SCREEN 1: HOME ===================== -->
+<div id="screen-home" class="screen active">
+    <div class="screen-scroll">
+        <div class="home-header">
+            <h1>Lita</h1>
+            <div style="display:flex; align-items:center; gap:16px;">
+                <i class="fa-solid fa-volume-high" id="mute-toggle-icon" onclick="toggleMute()" style="cursor:pointer;"></i>
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+        </div>
+
+        <audio id="audio-notif" src="notifikasi.mp3" preload="auto"></audio>
+        <audio id="audio-backsound" src="backsound.mp3" preload="auto"></audio>
+
+        <div class="bday-hero">
+            <div class="bday-hero-stage" id="confetti-stage"></div>
+            <div class="bday-hero-content">
+                <div class="bday-title"><i class="fa-solid fa-cake-candles"></i> Spesial Hari Ini</div>
+                <div class="bday-text">
+                    <p>Haii ganteng! akhirnya bertemu di hari ini, so happyy me Ai day's</p>
+                    <p>Selamat ulang tahun, happy bdayy, met milad yaa sayangg! di umur ke 25 tahun ini semoga sayangku semakin menjadi pribadi yang baik, InsyaAllah rezeki sayangku di lancar, InsyaAllah disegerakan doa doa yang selalu sayang panjatkan aamiin...</p>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="section-title">Popular Services</h3>
+        <div class="grid-menu">
+            <div class="menu-item" onclick="bukaListGamer('Mabar ML')"><div class="menu-icon bg-ml"><i class="fa-solid fa-gamepad"></i></div><span>Mabar ML</span></div>
+            <div class="menu-item" onclick="bukaListGamer('Teman Curhat')"><div class="menu-icon bg-curhat"><i class="fa-regular fa-comment-dots"></i></div><span>Curhat</span></div>
+            <div class="menu-item" onclick="bukaListGamer('Nonton Bareng')"><div class="menu-icon bg-movie"><i class="fa-solid fa-film"></i></div><span>Nobar</span></div>
+            <div class="menu-item" onclick="bukaListGamer('Sleep Call')"><div class="menu-icon bg-sleep"><i class="fa-solid fa-bed"></i></div><span>Sleep Call</span></div>
+            <div class="menu-item" onclick="bukaListGamer('Tiup Lilin')"><div class="menu-icon bg-cake"><i class="fa-solid fa-cake-candles"></i></div><span>Tiup Lilin</span></div>
+            <div class="menu-item" onclick="bukaListGamer('Buka Kado')"><div class="menu-icon bg-gift"><i class="fa-solid fa-gift"></i></div><span>Buka Kado</span></div>
+            <div class="menu-item" onclick="bukaListGamer('Make a Wish')"><div class="menu-icon bg-wish"><i class="fa-solid fa-wand-magic-sparkles"></i></div><span>Make a Wish</span></div>
+            <div class="menu-item"><div class="menu-icon bg-more"><i class="fa-solid fa-table-cells-large"></i></div><span>Lainnya</span></div>
+        </div>
+
+        <div class="banner-row">
+            <div class="banner banner-1"><h4>Sure Win</h4><p>Refund if you don't win</p></div>
+            <div class="banner banner-2"><h4>Flash Order</h4><p>Open Now</p></div>
+        </div>
+
+        <h3 class="section-title">Recommended Gamers</h3>
+        <div class="list-mabar">
+            <div class="card-mabar" onclick="navigasi('screen-rin-profile')">
+                <div class="card-img-wrap">
+                    <img src="leyza1.jpeg" class="card-img">
+                </div>
+                <div class="card-info">
+                    <div class="card-name">Leyzaa <span class="online-dot"></span></div>
+                    <div class="tags-row"><span class="tag tag-game">Pasti Win</span> <span class="tag tag-rank">Best Friend</span></div>
+                    <div class="card-desc">[On mic] Siap menemani hari spesialmu 24/7 ❤️</div>
+                </div>
+            </div>
+
+            <div class="card-mabar rival" onclick="tampilkanSlap('Han So Hee')">
+                <div class="card-img-wrap"><img src="saingan1.jpg" class="card-img"></div>
+                <div class="card-info">
+                    <div class="card-name">Han So Hee</div>
+                    <div class="tags-row"><span class="tag tag-locked">Mimpi</span></div>
+                    <div class="card-desc">Beda dimensi bang.</div>
+                    <div class="rival-tap-hint"><i class="fa-solid fa-hand-pointer"></i> Coba pilih?</div>
+                </div>
+            </div>
+
+            <div class="card-mabar rival" onclick="tampilkanSlap('Go Youn Jung')">
+                <div class="card-img-wrap"><img src="saingan2.jpg" class="card-img"></div>
+                <div class="card-info">
+                    <div class="card-name">Go Youn Jung</div>
+                    <div class="tags-row"><span class="tag tag-locked">Khayalan</span></div>
+                    <div class="card-desc">Nggak terjangkau, bro.</div>
+                    <div class="rival-tap-hint"><i class="fa-solid fa-hand-pointer"></i> Coba pilih?</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== SCREEN 2: GAMER LIST ===================== -->
+<div id="screen-gamer-list" class="screen">
+    <div class="screen-scroll">
+        <div class="header-nav">
+            <i class="fa-solid fa-angle-left" onclick="navigasi('screen-home')"></i>
+            <h2 id="title-service-list">Pilih Partner</h2>
+        </div>
+
+        <div class="list-mabar" style="padding-top: 15px;">
+            <div class="card-mabar" onclick="pilihRinUntukOrder()">
+                <div class="card-img-wrap">
+                    <img src="leyza1.jpeg" class="card-img">
+                </div>
+                <div class="card-info">
+                    <div class="card-name">Leyzaa <span class="online-dot"></span></div>
+                    <div class="tags-row"><span class="tag tag-game">Special Event</span> <span class="tag tag-rank">100% Win</span></div>
+                    <div class="card-desc" style="color:#d81b60; font-weight:bold;">Tersedia untuk order!</div>
+                </div>
+            </div>
+
+            <div class="card-mabar rival" onclick="tampilkanSlap('Han So Hee')">
+                <div class="card-img-wrap"><img src="saingan1.jpg" class="card-img"></div>
+                <div class="card-info">
+                    <div class="card-name">Han So Hee</div>
+                    <div class="tags-row"><span class="tag tag-locked">Sibuk</span></div>
+                    <div class="card-desc">Beda dimensi bang.</div>
+                    <div class="rival-tap-hint"><i class="fa-solid fa-hand-pointer"></i> Coba pilih?</div>
+                </div>
+            </div>
+
+            <div class="card-mabar rival" onclick="tampilkanSlap('Go Youn Jung')">
+                <div class="card-img-wrap"><img src="saingan2.jpg" class="card-img"></div>
+                <div class="card-info">
+                    <div class="card-name">Go Youn Jung</div>
+                    <div class="tags-row"><span class="tag tag-locked">Khayalan</span></div>
+                    <div class="card-desc">Nggak terjangkau, bro.</div>
+                    <div class="rival-tap-hint"><i class="fa-solid fa-hand-pointer"></i> Coba pilih?</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== SCREEN 3: ORDER (richer UI) ===================== -->
+<div id="screen-order" class="screen">
+    <div class="screen-scroll">
+        <div class="header-nav">
+            <i class="fa-solid fa-angle-left" onclick="navigasi('screen-gamer-list')"></i>
+            <h2>Confirm Order</h2>
+        </div>
+
+        <div class="order-card">
+            <div class="gamer-profile-order">
+                <img src="leyza1.jpeg">
+                <div>
+                    <div class="gpo-name"><h3 style="font-size:15px; font-weight:800; color:#111;">Leyzaa</h3><i class="fa-solid fa-circle-check" style="color:#03a9f4; font-size:12px;"></i></div>
+                    <div class="gpo-sub">★ 5.00 (1352) &nbsp;•&nbsp; Rata-rata respon 1 menit</div>
+                </div>
+            </div>
+
+            <div class="service-banner">
+                <div class="sb-icon"><i class="fa-solid fa-sparkles" id="sb-icon-symbol"></i></div>
+                <div class="sb-text">
+                    <div class="sb-label">Layanan dipilih</div>
+                    <div class="sb-name" id="sb-service-name">-</div>
+                </div>
+            </div>
+
+            <div id="dynamic-form"></div>
+
+            <div class="order-note-box">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>Isi detail sejelas mungkin biar Leyzaa bisa siapin semuanya sebelum sesi mulai. Semua request bersifat privat, cuma kamu dan Leyzaa yang lihat.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="order-bottom">
+        <div>
+            <span style="font-size:11px; color:#888; font-weight:700;">Final Price: 🪙 0</span>
+            <div style="font-size:12px; color:#555;">Balance: 0 Coin</div>
+        </div>
+        <button class="btn-order" onclick="kirimOrderWA()">Order</button>
+    </div>
+</div>
+
+<!-- ===================== SCREEN 4: CHAT ===================== -->
+<div id="screen-chat" class="screen">
+    <div class="chat-header">
+        <i class="fa-solid fa-angle-left" onclick="navigasi('screen-home')"></i>
+        <img src="leyza1.jpeg">
+        <div class="info">
+            <h2>Leyzaa</h2>
+            <p>● Active</p>
+        </div>
+    </div>
+    <div class="screen-scroll" style="padding-bottom:0;">
+        <div class="chat-container" id="chat-box"></div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" placeholder="Type anything...">
+        <div class="send-btn"><i class="fa-solid fa-gift"></i></div>
+    </div>
+</div>
+
+<!-- ===================== SCREEN 5: RIN PROFILE (public-facing card, styled after ref) ===================== -->
+<div id="screen-rin-profile" class="screen">
+    <div class="screen-scroll">
+        <div class="rin-cover" id="rin-cover">
+            <i class="fa-solid fa-angle-left rin-back" onclick="navigasi('screen-home')"></i>
+            <div class="rin-cover-arrow prev" onclick="geserSlideRin(-1)"><i class="fa-solid fa-chevron-left"></i></div>
+            <div class="rin-cover-arrow next" onclick="geserSlideRin(1)"><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="rin-cover-track" id="rin-cover-track">
+                <div class="rin-cover-slide"><img src="leyza1.jpeg"></div>
+                <div class="rin-cover-slide"><img src="leyza2.jpeg"></div>
+                <div class="rin-cover-slide"><img src="leyza3.jpeg"></div>
+            </div>
+            <div class="rin-cover-dots" id="rin-cover-dots"></div>
+        </div>
+        <div class="rin-info-box">
+            <h2>Leyzaa <i class="fa-solid fa-circle-check" style="color:#03a9f4; font-size:14px;"></i></h2>
+            <div class="rin-stat-row">
+                <span class="rs coin"><i class="fa-solid fa-coins"></i> 2</span>
+                <span class="rs key"><i class="fa-solid fa-key"></i> 22</span>
+            </div>
+            <div class="rin-followers">ID: 12709758 ❐ &nbsp; • &nbsp; Pengikut 14</div>
+
+            <div class="voice-note">
+                ▶ ılılılllıılı 24"
+            </div>
+
+            <div class="bio-text">
+                <p>Hai kakakuu~ 🐰 Selamat datang di dunia kecilku~</p>
+                <p>Lagi iseng scroll-scroll ya? Atau lagi cari temen buat ngerayain momen spesial bareng? </p>
+                <br>
+                <p>Sini kenalan duluuu~ Aku janji gak gigit kok, paling cuma gigit manja dikit </p>
+                <p>Aku siap nemenin kamu mabar, ngobrol, tiup lilin bareng, atau sekadar healing dari hari yang capek Jangan malu-malu yaa, chat aku aja~ ✨</p>
+            </div>
+
+            <div class="rin-gallery-title">Galeri Leyzaa</div>
+
+            <div class="rin-rel-card">
+                <div class="rr-label">💝 Hubungan Saya</div>
+                <div class="rin-rel-avatars">
+                    <div class="ra"><i class="fa-solid fa-user"></i></div>
+                    <div class="ra"><i class="fa-solid fa-user"></i></div>
+                    <div class="ra"><i class="fa-solid fa-user"></i></div>
+                </div>
+                <i class="fa-solid fa-chevron-right rr-chev"></i>
+            </div>
+
+            <div class="rin-two-col">
+                <div class="rin-mini-card spender">
+                    <h5>Spender</h5>
+                    <div class="rin-mini-avatars">
+                        <div class="maw"><div class="ma">1</div><div class="ma-rank">🥇</div></div>
+                        <div class="maw"><div class="ma">2</div></div>
+                        <div class="maw"><div class="ma">3</div></div>
+                    </div>
+                </div>
+                <div class="rin-mini-card gift">
+                    <h5>Koleksi Hadiah</h5>
+                    <span class="pill">Collector Initiate</span>
+                </div>
+            </div>
+
+            <div class="rin-actions">
+                <button class="btn-edit" disabled title="Ini profil publik Leyzaa, bukan akunmu"><i class="fa-solid fa-pen"></i> Edit</button>
+                <button class="btn-post" disabled title="Ini profil publik Leyzaa, bukan akunmu"><i class="fa-solid fa-camera"></i> Post</button>
+            </div>
+            <div class="rin-locked-note">Tombol ini cuma tampilan — hanya Leyzaa yang bisa edit profilnya sendiri</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== SCREEN 6: USER PROFILE (Aryandi, rich but mostly display-only) ===================== -->
+<div id="screen-user-profile" class="screen">
+    <div class="screen-scroll">
+        <div class="prof-header-card">
+            <img src="ariyandi1.jpeg" class="prof-avatar" onerror="this.src='https://ui-avatars.com/api/?name=AR&background=1a1a2e&color=fff'">
+            <div class="prof-header-text">
+                <div class="prof-name">Aryandi</div>
+                <div class="prof-id"><span class="badge">ID</span> 30339431 <i class="fa-regular fa-copy" style="font-size:10px;"></i></div>
+            </div>
+            <div class="prof-cal"><i class="fa-regular fa-calendar"></i><span class="dot"></span></div>
+        </div>
+
+        <div class="prof-stats">
+            <div class="p-stat"><h3>18</h3><span>Following</span></div>
+            <div class="p-stat"><h3>32</h3><span>Followers</span></div>
+            <div class="p-stat"><h3>256</h3><span>Visitors</span></div>
+        </div>
+
+        <div class="prof-vip-bar">
+            <div class="prof-vip-top"><i class="fa-solid fa-crown"></i> Billionaire Club <i class="fa-solid fa-chevron-right chev"></i></div>
+            <div class="prof-vip-bottom">
+                <div class="vb"><span class="icon-dot" style="background:#e91e8c33;">💎</span><span>Lita VIP<small>Gold 2</small></span></div>
+                <div class="vb"><span class="icon-dot" style="background:#4fc3f733;">🛡️</span><span>Lita SVIP<small>11 Benefit</small></span></div>
+            </div>
+        </div>
+
+        <div class="prof-grid">
+            <div class="p-icon-item" title="Tampilan saja"><div class="p-icon wallet"><i class="fa-solid fa-wallet"></i></div><div class="p-icon-text">Wallet</div></div>
+            <div class="p-icon-item" title="Tampilan saja"><div class="p-icon order"><i class="fa-solid fa-clipboard-list"></i></div><div class="p-icon-text">Order</div></div>
+            <div class="p-icon-item" title="Tampilan saja"><div class="p-icon coupon"><i class="fa-solid fa-ticket"></i></div><div class="p-icon-text">Kupon</div></div>
+            <div class="p-icon-item" title="Tampilan saja"><div class="p-icon bangsawan"><i class="fa-solid fa-chess-king"></i></div><div class="p-icon-text">Bangsawan</div></div>
+        </div>
+
+        <div class="prof-promo">
+            <div class="prof-promo-glow"></div>
+            <div class="prof-promo-inner">
+                <h4>Premium Player</h4>
+                <p>Premium Player hadir eksklusif untuk player terverifikasi, beranda khusus & cuan lebih!</p>
+            </div>
+            <div class="prof-promo-dots"><span></span><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="prof-dash">
+            <div class="prof-dash-top"><i class="fa-solid fa-gauge-high"></i>&nbsp; Masuk ke Dasboard Saya <span class="new-pill">Baru</span> <i class="fa-solid fa-chevron-right chev"></i></div>
+            <div class="prof-dash-row">
+                <div class="icon-dot"><i class="fa-solid fa-headset"></i></div>
+                <div class="label">Skor Lita</div>
+                <div class="score">400 pts</div>
+            </div>
+        </div>
+
+        <div class="prof-locked-hint"><i class="fa-solid fa-lock"></i> Menu ini masih tampilan, belum bisa dipencet</div>
+    </div>
+</div>
+
+<!-- ===================== BOTTOM NAV (global, persist di semua screen) ===================== -->
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="navigasi('screen-home')" id="nav-1">
+        <svg class="icon-game" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><circle cx="7.5" cy="11.5" r="1.5"></circle><circle cx="16.5" cy="11.5" r="1.5"></circle><path d="M12 16h.01"></path></svg>
+    </div>
+    <div class="nav-item" onclick="navigasi('screen-home')" id="nav-2">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 16 12 11 15 16"></polyline></svg>
+    </div>
+    <div class="nav-item" onclick="navigasi('screen-home')" id="nav-3">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+    </div>
+    <div class="nav-item" onclick="navigasi('screen-chat')" id="nav-4">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        <div class="chat-badge" id="chat-badge">0</div>
+    </div>
+    <div class="nav-item" onclick="navigasi('screen-user-profile')" id="nav-5">
+        <svg viewBox="0 0 24 24"><path d="M12 20c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"></path><circle cx="9" cy="10" r="1"></circle><circle cx="15" cy="10" r="1"></circle><path d="M10 14c1.3 1.3 2.7 1.3 4 0"></path><path d="M4 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"></path><path d="M20 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"></path></svg>
+    </div>
+</div>
+
+</div>
+
+<script>
+    let selectedLayanan = "";
+    let chatCount = 0;
+    let isMuted = false;
+    let backsoundStarted = false;
+
+    const serviceMeta = {
+        'Mabar ML':        { icon: 'fa-gamepad',        color: '#1565c0' },
+        'Teman Curhat':    { icon: 'fa-comment-dots',    color: '#ef6c00' },
+        'Nonton Bareng':   { icon: 'fa-film',            color: '#2e7d32' },
+        'Sleep Call':      { icon: 'fa-bed',             color: '#6a1b9a' },
+        'Tiup Lilin':      { icon: 'fa-cake-candles',    color: '#c2185b' },
+        'Buka Kado':       { icon: 'fa-gift',            color: '#f57f17' },
+        'Make a Wish':     { icon: 'fa-wand-magic-sparkles', color: '#00838f' },
+    };
+
+    const chatMessages = [
+        "Aku tau kamu bisa beli seisi dunia, aku cuma mau jadi bagian kecil dari dunia mu. Makasih yaa karena membiarkan diriku ini menjadi bagian kecil di duniamu yang luas, maaf kalo diri ini banyak meminta lebih sebagai pelengkap dunia mu.",
+        "Aku cuma mau ada sesuatu yang mengingatkan aku. Meskipun itu hal kecil dan sederhana, semoga dengan hal kecil dan sederhana itu mampu membuat seorang ai berhenti sambil diselimuti rasa hangat.",
+        "Aku mau hadir dan membiasakan kehadiranku di kamu. Sayang aku ada, si perempuan yang akan selalu mengusahakan kamu."
+    ];
+
+    window.onload = () => {
+        let delay = 2000;
+        chatMessages.forEach((msg) => {
+            setTimeout(() => {
+                munculinNotif(msg);
+                updateBadge();
+                renderPesanDiChat(msg);
+            }, delay);
+            delay += 5000;
+        });
+        buildConfetti();
+        initRinCarousel();
+        cobaMainkanBacksound();
+    };
+
+    /* ---------- Audio: birthday backsound + notification sound + mute ----------
+       Drop your files next to this index.html as exactly:
+         - backsound.mp3   (birthday song, plays once, no loop)
+         - notifikasi.mp3  (plays each time a chat notification pops up)
+       Most mobile browsers block audio from starting on page load without a
+       user gesture first, so we try to autoplay immediately, and if that's
+       blocked we fall back to starting on the very first tap/click anywhere
+       in the app — still "automatic" from the user's perspective since it
+       needs no extra button press, it just needs one touch to unlock audio. */
+    function cobaMainkanBacksound() {
+        const bg = document.getElementById('audio-backsound');
+        if (!bg) return;
+        bg.volume = 0.25;
+        const playPromise = bg.play();
+        if (playPromise && playPromise.catch) {
+            playPromise.then(() => { backsoundStarted = true; })
+                       .catch(() => {
+                            const startOnFirstTouch = () => {
+                                if (!isMuted && !backsoundStarted) {
+                                    bg.play().then(() => { backsoundStarted = true; }).catch(() => {});
+                                }
+                                document.removeEventListener('click', startOnFirstTouch);
+                                document.removeEventListener('touchstart', startOnFirstTouch);
+                            };
+                            document.addEventListener('click', startOnFirstTouch, { once: true });
+                            document.addEventListener('touchstart', startOnFirstTouch, { once: true });
+                       });
+        }
+    }
+
+    function mainkanSuaraNotif() {
+        if (isMuted) return;
+        const el = document.getElementById('audio-notif');
+        if (!el) return;
+        el.currentTime = 0;
+        el.play().catch(() => { /* ignored: browser may still be waiting on user gesture */ });
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        const bg = document.getElementById('audio-backsound');
+        const icon = document.getElementById('mute-toggle-icon');
+        if (bg) bg.muted = isMuted;
+        if (icon) {
+            icon.classList.toggle('fa-volume-high', !isMuted);
+            icon.classList.toggle('fa-volume-xmark', isMuted);
+        }
+    }
+
+    /* ---------- Birthday hero animation (pure CSS/JS, no icon assets) ---------- */
+    function buildConfetti() {
+        const stage = document.getElementById('confetti-stage');
+        const colors = ['#ff6fa5', '#ffcf56', '#8e6bff', '#5ecbff', '#ff8a5c'];
+
+        // confetti rectangles
+        for (let i = 0; i < 16; i++) {
+            const el = document.createElement('div');
+            el.className = 'confetto';
+            const size = 4 + Math.random() * 4;
+            el.style.width = size + 'px';
+            el.style.height = (size * 2.2) + 'px';
+            el.style.left = (Math.random() * 96) + '%';
+            el.style.background = colors[i % colors.length];
+            el.style.animationDuration = (3 + Math.random() * 2.5) + 's';
+            el.style.animationDelay = (Math.random() * 4) + 's';
+            stage.appendChild(el);
+        }
+
+        // rising balloons
+        const balloonColors = ['#ff6fa5', '#8e6bff', '#5ecbff'];
+        for (let i = 0; i < 3; i++) {
+            const el = document.createElement('div');
+            el.className = 'bday-balloon';
+            el.style.left = (12 + i * 35 + Math.random() * 10) + '%';
+            el.style.background = balloonColors[i % balloonColors.length];
+            el.style.animationDelay = (i * 1.6) + 's';
+            stage.appendChild(el);
+        }
+
+        // sparkle twinkles
+        for (let i = 0; i < 6; i++) {
+            const el = document.createElement('div');
+            el.className = 'bday-sparkle';
+            el.style.left = (Math.random() * 90) + '%';
+            el.style.top = (Math.random() * 80) + '%';
+            el.style.animationDelay = (Math.random() * 2.6) + 's';
+            stage.appendChild(el);
+        }
+    }
+
+    function munculinNotif(text) {
+        const notifEl = document.getElementById('floating-notif');
+        document.getElementById('notif-text-msg').innerText = text;
+        notifEl.classList.add('show');
+        mainkanSuaraNotif();
+        setTimeout(() => { notifEl.classList.remove('show'); }, 4000);
+    }
+
+    function updateBadge() {
+        chatCount++;
+        const badge = document.getElementById('chat-badge');
+        badge.innerText = chatCount;
+        badge.style.opacity = '1';
+    }
+
+    function renderPesanDiChat(text) {
+        const chatBox = document.getElementById('chat-box');
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble';
+        bubble.innerText = text;
+        chatBox.appendChild(bubble);
+    }
+
+    function navigasi(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        if (screenId === 'screen-home') document.getElementById('nav-1').classList.add('active');
+        if (screenId === 'screen-chat') document.getElementById('nav-4').classList.add('active');
+        if (screenId === 'screen-user-profile') document.getElementById('nav-5').classList.add('active');
+    }
+
+    // Step 1: Klik Menu Beranda -> Pindah Halaman Gamer List
+    function bukaListGamer(namaLayanan) {
+        selectedLayanan = namaLayanan;
+        document.getElementById('title-service-list').innerText = `Partner for: ${namaLayanan}`;
+        navigasi('screen-gamer-list');
+    }
+
+    function pilihRinUntukOrder() {
+        renderFormDinamis();
+        navigasi('screen-order');
+    }
+
+    // Step 2: Halaman Order form dinamis (richer per-service UI)
+    function renderFormDinamis() {
+        const meta = serviceMeta[selectedLayanan] || { icon: 'fa-sparkles', color: '#9c27b0' };
+        document.getElementById('sb-icon-symbol').className = 'fa-solid ' + meta.icon;
+        document.getElementById('sb-icon-symbol').parentElement.style.color = meta.color;
+        document.getElementById('sb-service-name').innerText = selectedLayanan || '-';
+
+        const formDiv = document.getElementById('dynamic-form');
+        let html = '';
+
+        if (selectedLayanan === 'Nonton Bareng' || selectedLayanan === 'Nobar') {
+            html += `
+                <label class="input-label"><i class="fa-solid fa-clapperboard" style="color:#2e7d32;"></i> Nonton apa?</label>
+                <input type="text" id="input-1" class="custom-input" placeholder="Misal: Netflix, Bioskop...">
+                <div class="input-hint">Judul film / platform yang mau ditonton bareng</div>
+
+                <label class="input-label"><i class="fa-regular fa-clock" style="color:#2e7d32;"></i> Jam berapa?</label>
+                <input type="time" id="input-2" class="custom-input">
+
+                <label class="input-label">Mode nonton</label>
+                <div class="chip-row" id="chip-row-1">
+                    <div class="chip active" onclick="pilihChip(this,'chip-row-1')">Video Call</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Watch Party</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Voice Only</div>
+                </div>
+            `;
+        } else if (selectedLayanan === 'Mabar ML') {
+            html += `
+                <label class="input-label"><i class="fa-regular fa-clock" style="color:#1565c0;"></i> Jam main?</label>
+                <input type="time" id="input-1" class="custom-input">
+
+                <label class="input-label">Role favorit</label>
+                <div class="chip-row" id="chip-row-1">
+                    <div class="chip active" onclick="pilihChip(this,'chip-row-1')">Core</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">EXP</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Jungle</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Roam</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Gold Lane</div>
+                </div>
+
+                <label class="input-label">Catatan</label>
+                <input type="text" id="input-2" class="custom-input" placeholder="Misal: Aku pick core ya">
+            `;
+        } else if (selectedLayanan === 'Sleep Call') {
+            html += `
+                <label class="input-label"><i class="fa-regular fa-clock" style="color:#6a1b9a;"></i> Mulai jam berapa?</label>
+                <input type="time" id="input-1" class="custom-input">
+
+                <label class="input-label">Durasi</label>
+                <div class="chip-row" id="chip-row-1">
+                    <div class="chip active" onclick="pilihChip(this,'chip-row-1')">30 menit</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">1 jam</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Sampai ketiduran</div>
+                </div>
+
+                <label class="input-label">Detail Request</label>
+                <textarea id="input-2" class="custom-input" rows="2" placeholder="Misal: mau diceritain dongeng dulu"></textarea>
+            `;
+        } else if (selectedLayanan === 'Buka Kado' || selectedLayanan === 'Tiup Lilin') {
+            html += `
+                <label class="input-label"><i class="fa-regular fa-clock" style="color:#c2185b;"></i> Jam sesi?</label>
+                <input type="time" id="input-1" class="custom-input">
+
+                <label class="input-label">Detail Request</label>
+                <textarea id="input-2" class="custom-input" rows="3" placeholder="Tulis catatan buat Leyzaa..."></textarea>
+            `;
+        } else {
+            html += `
+                <label class="input-label"><i class="fa-solid fa-pen" style="color:#9c27b0;"></i> Detail Request</label>
+                <textarea id="input-1" class="custom-input" rows="3" placeholder="Tulis catatan buat Leyzaa..."></textarea>
+            `;
+        }
+        formDiv.innerHTML = html;
+    }
+
+    function pilihChip(el, rowId) {
+        document.querySelectorAll('#' + rowId + ' .chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    /* ---------- Rival "trigger" mechanic ----------
+       First tap only shows an inviting card (label + desc) with no mockery.
+       Only AFTER that explicit tap does the "slap" moment appear, telling the
+       user plainly that this pick isn't real and steering them back to Leyzaa. */
+    function tampilkanSlap(namaRival) {
+        const overlay = document.getElementById('rival-slap-overlay');
+        const titleEl = document.getElementById('rival-slap-title');
+        const textEl = document.getElementById('rival-slap-text');
+
+        titleEl.innerText = 'INI CUMA MIMPI.';
+        textEl.innerText = `${namaRival} nggak bisa kamu order — dia bukan bagian dari cerita ini. Sadar-sadar, yuk balik ke Leyzaa yang emang di sini buat kamu.`;
+
+        overlay.classList.add('show');
+    }
+
+    function closeSlapAndGoRin() {
+        document.getElementById('rival-slap-overlay').classList.remove('show');
+        navigasi('screen-rin-profile');
+    }
+
+    /* ---------- Leyzaa cover photo carousel ----------
+       Slides come straight from the .rin-cover-slide elements already in the
+       HTML, so the count auto-adjusts if you add/remove <div class="rin-cover-slide">
+       blocks — no hardcoded "3 photos" anywhere. Swap the <img src> values to
+       point at your own files (e.g. leyza1.jpeg, leyza2.jpeg, leyza3.jpeg) and
+       add more rin-cover-slide divs if you have more than 3. */
+    let rinSlideIndex = 0;
+    let rinSlideCount = 0;
+    let rinTouchStartX = null;
+
+    function initRinCarousel() {
+        const track = document.getElementById('rin-cover-track');
+        const dotsWrap = document.getElementById('rin-cover-dots');
+        if (!track || !dotsWrap) return;
+
+        rinSlideCount = track.children.length;
+        dotsWrap.innerHTML = '';
+        for (let i = 0; i < rinSlideCount; i++) {
+            const dot = document.createElement('span');
+            dot.onclick = () => { rinSlideIndex = i; renderRinCarousel(); };
+            dotsWrap.appendChild(dot);
+        }
+
+        const coverEl = document.getElementById('rin-cover');
+        coverEl.addEventListener('touchstart', (e) => { rinTouchStartX = e.touches[0].clientX; }, { passive: true });
+        coverEl.addEventListener('touchend', (e) => {
+            if (rinTouchStartX === null) return;
+            const diff = e.changedTouches[0].clientX - rinTouchStartX;
+            if (Math.abs(diff) > 40) geserSlideRin(diff < 0 ? 1 : -1);
+            rinTouchStartX = null;
+        }, { passive: true });
+
+        renderRinCarousel();
+    }
+
+    function geserSlideRin(dir) {
+        if (rinSlideCount === 0) return;
+        rinSlideIndex = (rinSlideIndex + dir + rinSlideCount) % rinSlideCount;
+        renderRinCarousel();
+    }
+
+    function renderRinCarousel() {
+        const track = document.getElementById('rin-cover-track');
+        if (!track) return;
+        track.style.transform = `translateX(-${rinSlideIndex * 100}%)`;
+        document.querySelectorAll('#rin-cover-dots span').forEach((d, i) => {
+            d.classList.toggle('active', i === rinSlideIndex);
+        });
+    }
+
+    function kirimOrderWA() {
+        let val1 = document.getElementById('input-1') ? document.getElementById('input-1').value : '';
+        let val2 = document.getElementById('input-2') ? document.getElementById('input-2').value : '';
+
+        if (!val1) {
+            Swal.fire({ icon: 'warning', title: 'Oops', text: 'Lengkapi form dulu ya', confirmButtonColor: '#ff4081' });
+            return;
+        }
+
+        let pesan = `Halo Leyzaa! Aku order layanan *${selectedLayanan}* ya.%0A%0A`;
+        if (selectedLayanan === 'Nonton Bareng' || selectedLayanan === 'Nobar') pesan += `- Film: ${val1}%0A- Jam: ${val2}`;
+        else if (selectedLayanan === 'Mabar ML') pesan += `- Jam: ${val1}%0A- Notes: ${val2}`;
+        else if (selectedLayanan === 'Sleep Call') pesan += `- Jam mulai: ${val1}%0A- Detail: ${val2}`;
+        else if (selectedLayanan === 'Buka Kado' || selectedLayanan === 'Tiup Lilin') pesan += `- Jam: ${val1}%0A- Detail: ${val2}`;
+        else pesan += `- Detail: ${val1}`;
+
+        let noWA = "6281234567890";
+        window.open(`https://wa.me/${noWA}?text=${pesan}`, '_blank');
+    }
+</script>
+
+</body>
+</html>
