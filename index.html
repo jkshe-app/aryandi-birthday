@@ -21,6 +21,47 @@ body { background-color: #efeef1; display: flex; justify-content: center; align-
     display: flex; flex-direction: column;
 }
 
+/* === TAP TO START OVERLAY === */
+#tap-to-start-overlay {
+    position: absolute; inset: 0; z-index: 9999;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at 50% 30%, #c5c4c4 0%, #bca9d9 55%, #ffffff 100%);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; overflow: hidden;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+#tap-to-start-overlay.hide { opacity: 0; transform: scale(1.04); pointer-events: none; }
+
+.tts-glow {
+    position: absolute; width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,111,165,0.35) 0%, rgba(255,111,165,0) 70%);
+    animation: ttsPulse 2.6s ease-in-out infinite;
+}
+@keyframes ttsPulse { 0%, 100% { transform: scale(0.9); opacity: 0.7; } 50% { transform: scale(1.15); opacity: 1; } }
+
+.tts-content { position: relative; z-index: 2; text-align: center; padding: 0 30px; }
+.tts-photo {
+    width: 92px; height: 92px; border-radius: 50%; margin: 0 auto 22px;
+    border: 3px solid rgba(255,255,255,0.85); box-shadow: 0 0 25px rgba(255,111,165,0.5);
+    overflow: hidden; animation: ttsFloat 3s ease-in-out infinite;
+}
+.tts-photo img { width: 100%; height: 100%; object-fit: cover; }
+@keyframes ttsFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+.tts-title { color: #fff; font-size: 21px; font-weight: 800; margin-bottom: 8px; letter-spacing: 0.01em; }
+.tts-sub { color: rgba(255,255,255,0.65); font-size: 12.5px; font-weight: 600; margin-bottom: 32px; line-height: 1.6; }
+
+.tts-tap-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(90deg, #ff4081, #b388ff);
+    color: #fff; font-weight: 800; font-size: 13px;
+    padding: 13px 26px; border-radius: 30px;
+    box-shadow: 0 6px 20px rgba(255,64,129,0.4);
+    animation: ttsBtnPulse 1.8s ease-in-out infinite;
+}
+@keyframes ttsBtnPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+
 /* Every screen is its own scroll region inside the fixed phone frame, and the
    bottom-nav/floating bars are positioned absolute to #app (not fixed to the
    browser viewport). This is the fix for the nav bar misalignment: previously
@@ -164,6 +205,79 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
 
 .order-note-box { display: flex; gap: 10px; background: #fff8e1; border: 1px solid #ffe8a3; border-radius: 10px; padding: 12px 14px; margin-top: 4px; font-size: 11px; color: #8a6d1a; line-height: 1.5; }
 .order-note-box i { color: #f57f17; margin-top: 1px; }
+
+/* Little note (Buka Kado custom message) */
+.aca-note-box { display: flex; gap: 10px; background: linear-gradient(135deg, #fff0f6, #f3e8ff); border: 1px solid #f4c9e3; border-radius: 10px; padding: 14px 14px; margin-top: 4px; font-size: 12px; color: #7a3b63; line-height: 1.6; }
+.aca-note-box i { color: #d81b60; margin-top: 2px; }
+.aca-note-box b { color: #b3175f; }
+
+/* Cart icon in home header */
+.cart-icon-wrap { position: relative; cursor: pointer; }
+.cart-icon-wrap i { font-size: 17px; }
+.cart-badge { position: absolute; top: -8px; right: -9px; background: #ff4081; color: #fff; font-size: 9px; font-weight: 800; min-width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0 2px; border: 1.5px solid #1a1a1a; }
+.cart-badge.zero { display: none; }
+
+/* Keranjang list screen */
+.keranjang-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; padding: 0 20px; }
+.keranjang-item { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.ki-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.ki-service { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: #333; }
+.ki-service i { width: 26px; height: 26px; border-radius: 50%; background: #f5f0ff; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.ki-actions { display: flex; align-items: center; gap: 14px; }
+.ki-edit { color: #bbb; cursor: pointer; font-size: 13px; padding: 4px; }
+.ki-edit:hover { color: #9c27b0; }
+.ki-remove { color: #bbb; cursor: pointer; font-size: 14px; padding: 4px; }
+.ki-remove:hover { color: #ff4081; }
+.ki-detail { font-size: 11.5px; color: #777; line-height: 1.6; padding-left: 34px; }
+.ki-detail b { color: #444; font-weight: 700; }
+
+.keranjang-empty { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 20px; margin-top: 14px; color: #bbb; }
+.keranjang-empty.show { display: flex; }
+.keranjang-empty i { font-size: 40px; margin-bottom: 14px; color: #ddd; }
+.keranjang-empty p { font-size: 12.5px; line-height: 1.6; font-weight: 600; }
+
+.add-more-row { margin-top: 20px; padding: 0 20px 20px; }
+
+/* === CUSTOM SWEETALERT POPUP (matches app style) === */
+.swal2-popup.app-confirm-popup {
+    border-radius: 22px !important;
+    padding: 32px 26px 28px !important;
+    font-family: 'Nunito', sans-serif !important;
+    box-shadow: 0 15px 40px rgba(156,39,176,0.18) !important;
+    width: 84% !important;
+    max-width: 300px !important;
+}
+.app-confirm-popup .swal2-icon {
+    border: none !important; margin: 0 auto 14px !important;
+    width: 64px !important; height: 64px !important;
+}
+.app-confirm-popup .swal2-icon-content {
+    background: linear-gradient(135deg, #9c27b0, #ff4081);
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(255,64,129,0.35);
+}
+.app-confirm-popup .swal2-icon-content i { color: #fff; font-size: 30px; }
+.app-confirm-title.app-confirm-title {
+    font-size: 17px !important; font-weight: 800 !important; color: #111 !important;
+    margin: 0 0 4px !important; padding: 0 !important;
+}
+.app-confirm-text.app-confirm-text {
+    font-size: 12.5px !important; color: #777 !important; font-weight: 600 !important;
+    margin: 0 !important; padding: 0 !important;
+}
+@keyframes swalPopIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+@keyframes swalPopOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
+.swal-pop-in { animation: swalPopIn 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+.swal-pop-out { animation: swalPopOut 0.18s ease both; }
+.btn-add-more { display: flex; align-items: center; justify-content: center; gap: 8px; border: 1.5px dashed #d9b8ea; color: #9c4dcc; font-weight: 700; font-size: 12.5px; padding: 12px; border-radius: 10px; cursor: pointer; background: #faf5ff; }
+
+.order-summary-title { font-size: 12.5px; font-weight: 800; color: #555; margin: 4px 0 10px; display: flex; align-items: center; gap: 6px; }
+.order-summary-title i { color: #d81b60; }
+.order-summary-list { display: flex; flex-direction: column; gap: 10px; }
+.osl-item { background: #fdf7fb; border: 1px solid #f3d9ec; border-radius: 10px; padding: 12px; }
+.osl-name { font-size: 12.5px; font-weight: 800; color: #333; margin-bottom: 4px; }
+.osl-detail { font-size: 11px; color: #888; line-height: 1.6; }
 
 .order-bottom {
     position: absolute; bottom: 60px; left: 0; width: 100%; background: #fff;
@@ -342,6 +456,16 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
 
 <div id="app">
 
+<div id="tap-to-start-overlay" onclick="mulaiApp()">
+    <div class="tts-glow"></div>
+    <div class="tts-content">
+        <div class="tts-photo"><img src="leyza1.jpeg"></div>
+        <h1 class="tts-title">Untukmu, hari ini.</h1>
+        <p class="tts-sub">Ketuk layar buat mulai & nyalain suasananya</p>
+        <div class="tts-tap-btn"><i class="fa-solid fa-hand-pointer"></i> Tap to Start</div>
+    </div>
+</div>
+
 <svg width="0" height="0" style="position:absolute;">
     <defs>
         <linearGradient id="game-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -377,11 +501,15 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
             <div style="display:flex; align-items:center; gap:16px;">
                 <i class="fa-solid fa-volume-high" id="mute-toggle-icon" onclick="toggleMute()" style="cursor:pointer;"></i>
                 <i class="fa-solid fa-magnifying-glass"></i>
+                <div class="cart-icon-wrap" onclick="navigasi('screen-keranjang'); renderKeranjang();">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="cart-badge" id="home-cart-badge">0</span>
+                </div>
             </div>
         </div>
 
         <audio id="audio-notif" src="notifikasi.mp3" preload="auto"></audio>
-        <audio id="audio-backsound" src="backsound.mp3" preload="auto"></audio>
+        <audio id="audio-backsound" src="backsound.mp3" preload="auto" loop></audio>
 
         <div class="bday-hero">
             <div class="bday-hero-stage" id="confetti-stage"></div>
@@ -396,10 +524,10 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
 
         <h3 class="section-title">Popular Services</h3>
         <div class="grid-menu">
-            <div class="menu-item" onclick="bukaListGamer('Mabar ML')"><div class="menu-icon bg-ml"><i class="fa-solid fa-gamepad"></i></div><span>Mabar ML</span></div>
+            <div class="menu-item" onclick="bukaListGamer('Mabar')"><div class="menu-icon bg-ml"><i class="fa-solid fa-gamepad"></i></div><span>Mabar</span></div>
             <div class="menu-item" onclick="bukaListGamer('Teman Curhat')"><div class="menu-icon bg-curhat"><i class="fa-regular fa-comment-dots"></i></div><span>Curhat</span></div>
             <div class="menu-item" onclick="bukaListGamer('Nonton Bareng')"><div class="menu-icon bg-movie"><i class="fa-solid fa-film"></i></div><span>Nobar</span></div>
-            <div class="menu-item" onclick="bukaListGamer('Sleep Call')"><div class="menu-icon bg-sleep"><i class="fa-solid fa-bed"></i></div><span>Sleep Call</span></div>
+            <div class="menu-item" onclick="bukaListGamer('Spotify Sesi')"><div class="menu-icon bg-sleep"><i class="fa-brands fa-spotify"></i></div><span>Spotify Sesi</span></div>
             <div class="menu-item" onclick="bukaListGamer('Tiup Lilin')"><div class="menu-icon bg-cake"><i class="fa-solid fa-cake-candles"></i></div><span>Tiup Lilin</span></div>
             <div class="menu-item" onclick="bukaListGamer('Buka Kado')"><div class="menu-icon bg-gift"><i class="fa-solid fa-gift"></i></div><span>Buka Kado</span></div>
             <div class="menu-item" onclick="bukaListGamer('Make a Wish')"><div class="menu-icon bg-wish"><i class="fa-solid fa-wand-magic-sparkles"></i></div><span>Make a Wish</span></div>
@@ -447,11 +575,75 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
     </div>
 </div>
 
+<!-- ===================== SCREEN 2.5: DETAIL LAYANAN (isi form sebelum masuk keranjang) ===================== -->
+<div id="screen-detail-layanan" class="screen">
+    <div class="screen-scroll">
+        <div class="header-nav">
+            <i class="fa-solid fa-angle-left" onclick="editIndex = -1; navigasi(keranjang.length > 0 ? 'screen-keranjang' : 'screen-home'); renderKeranjang();"></i>
+            <h2>Isi Detail</h2>
+        </div>
+
+        <div class="order-card">
+            <div class="service-banner">
+                <div class="sb-icon"><i class="fa-solid fa-sparkles" id="sbd-icon-symbol"></i></div>
+                <div class="sb-text">
+                    <div class="sb-label">Layanan dipilih</div>
+                    <div class="sb-name" id="sbd-service-name">-</div>
+                </div>
+            </div>
+
+            <div id="dynamic-form-detail"></div>
+
+            <div class="order-note-box" id="dynamic-note-detail">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>Isi detail sejelas mungkin biar Leyzaa bisa siapin semuanya sebelum sesi mulai. Semua request bersifat privat, cuma kamu dan Leyzaa yang lihat.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="order-bottom">
+        <div>
+            <span style="font-size:11px; color:#888; font-weight:700;">🛒 <span id="cart-count-hint">0</span> layanan di keranjang</span>
+            <div style="font-size:12px; color:#555;">Bisa tambah layanan lain juga</div>
+        </div>
+        <button class="btn-order" id="btn-tambah-keranjang" onclick="tambahKeKeranjang()">Tambah ke Keranjang</button>
+    </div>
+</div>
+
+<!-- ===================== SCREEN 2.7: KERANJANG LAYANAN ===================== -->
+<div id="screen-keranjang" class="screen">
+    <div class="screen-scroll">
+        <div class="header-nav">
+            <i class="fa-solid fa-angle-left" onclick="navigasi('screen-home')"></i>
+            <h2>Keranjang Layanan</h2>
+        </div>
+
+        <div id="keranjang-list" class="keranjang-list"></div>
+
+        <div class="keranjang-empty" id="keranjang-empty">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <p>Keranjang masih kosong.<br>Yuk pilih layanan dulu di beranda!</p>
+        </div>
+
+        <div class="add-more-row" id="add-more-row">
+            <div class="btn-add-more" onclick="navigasi('screen-home')"><i class="fa-solid fa-plus"></i> Tambah Layanan Lain</div>
+        </div>
+    </div>
+
+    <div class="order-bottom" id="keranjang-bottom">
+        <div>
+            <span style="font-size:11px; color:#888; font-weight:700;"><span id="keranjang-total-count">0</span> layanan dipilih</span>
+            <div style="font-size:12px; color:#555;">Lanjut pilih partner kamu</div>
+        </div>
+        <button class="btn-order" onclick="lanjutPilihPartner()">Pilih Partner</button>
+    </div>
+</div>
+
 <!-- ===================== SCREEN 2: GAMER LIST ===================== -->
 <div id="screen-gamer-list" class="screen">
     <div class="screen-scroll">
         <div class="header-nav">
-            <i class="fa-solid fa-angle-left" onclick="navigasi('screen-home')"></i>
+            <i class="fa-solid fa-angle-left" onclick="navigasi('screen-keranjang')"></i>
             <h2 id="title-service-list">Pilih Partner</h2>
         </div>
 
@@ -507,20 +699,8 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
                 </div>
             </div>
 
-            <div class="service-banner">
-                <div class="sb-icon"><i class="fa-solid fa-sparkles" id="sb-icon-symbol"></i></div>
-                <div class="sb-text">
-                    <div class="sb-label">Layanan dipilih</div>
-                    <div class="sb-name" id="sb-service-name">-</div>
-                </div>
-            </div>
-
-            <div id="dynamic-form"></div>
-
-            <div class="order-note-box">
-                <i class="fa-solid fa-circle-info"></i>
-                <div>Isi detail sejelas mungkin biar Leyzaa bisa siapin semuanya sebelum sesi mulai. Semua request bersifat privat, cuma kamu dan Leyzaa yang lihat.</div>
-            </div>
+            <div class="order-summary-title"><i class="fa-solid fa-list-check"></i> Ringkasan Layanan</div>
+            <div id="order-summary-list" class="order-summary-list"></div>
         </div>
     </div>
 
@@ -704,12 +884,14 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
     let chatCount = 0;
     let isMuted = false;
     let backsoundStarted = false;
+    let keranjang = []; // { layanan, detailText, detailHtml }
+    let editIndex = -1; // -1 = mode tambah baru, >=0 = sedang edit item keranjang[editIndex]
 
     const serviceMeta = {
-        'Mabar ML':        { icon: 'fa-gamepad',        color: '#1565c0' },
+        'Mabar':           { icon: 'fa-gamepad',        color: '#1565c0' },
         'Teman Curhat':    { icon: 'fa-comment-dots',    color: '#ef6c00' },
         'Nonton Bareng':   { icon: 'fa-film',            color: '#2e7d32' },
-        'Sleep Call':      { icon: 'fa-bed',             color: '#6a1b9a' },
+        'Spotify Sesi':    { icon: 'fa-spotify',         color: '#6a1b9a', brand: true },
         'Tiup Lilin':      { icon: 'fa-cake-candles',    color: '#c2185b' },
         'Buka Kado':       { icon: 'fa-gift',            color: '#f57f17' },
         'Make a Wish':     { icon: 'fa-wand-magic-sparkles', color: '#00838f' },
@@ -722,7 +904,19 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
     ];
 
     window.onload = () => {
-        let delay = 2000;
+        buildConfetti();
+        initRinCarousel();
+        // Backsound & notifikasi chat baru mulai setelah user tap overlay,
+        // supaya gesture tap itu sendiri yang membuka izin audio browser.
+    };
+
+    function mulaiApp() {
+        const overlay = document.getElementById('tap-to-start-overlay');
+        if (overlay) overlay.classList.add('hide');
+
+        cobaMainkanBacksound();
+
+        let delay = 1200;
         chatMessages.forEach((msg) => {
             setTimeout(() => {
                 munculinNotif(msg);
@@ -731,14 +925,13 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
             }, delay);
             delay += 5000;
         });
-        buildConfetti();
-        initRinCarousel();
-        cobaMainkanBacksound();
-    };
+
+        setTimeout(() => { if (overlay) overlay.remove(); }, 700);
+    }
 
     /* ---------- Audio: birthday backsound + notification sound + mute ----------
        Drop your files next to this index.html as exactly:
-         - backsound.mp3   (birthday song, plays once, no loop)
+         - backsound.mp3   (birthday song, loops continuously)
          - notifikasi.mp3  (plays each time a chat notification pops up)
        Most mobile browsers block audio from starting on page load without a
        user gesture first, so we try to autoplay immediately, and if that's
@@ -859,77 +1052,121 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
         if (screenId === 'screen-user-profile') document.getElementById('nav-5').classList.add('active');
     }
 
-    // Step 1: Klik Menu Beranda -> Pindah Halaman Gamer List
+    // Step 1: Klik Menu Beranda -> Buka form isi detail utk layanan ini (mode keranjang)
     function bukaListGamer(namaLayanan) {
         selectedLayanan = namaLayanan;
-        document.getElementById('title-service-list').innerText = `Partner for: ${namaLayanan}`;
+        editIndex = -1;
+        navigasi('screen-detail-layanan');
+        renderFormDinamis();
+    }
+
+    // Buka form isi detail dalam mode EDIT utk item yang sudah ada di keranjang
+    function editKeranjang(idx) {
+        const item = keranjang[idx];
+        if (!item) return;
+        selectedLayanan = item.layanan;
+        editIndex = idx;
+        navigasi('screen-detail-layanan');
+        renderFormDinamis();
+        // isi ulang form dengan value yang sudah pernah disimpan
+        if (item.values) isiUlangFormDetail(item.values);
+    }
+
+    // Isi ulang input/chip form sesuai value yang tersimpan waktu item ditambahkan
+    function isiUlangFormDetail(values) {
+        Object.keys(values).forEach(id => {
+            const val = values[id];
+            if (id.startsWith('chip-row-')) {
+                const row = document.getElementById(id);
+                if (row && val) {
+                    row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    const match = Array.from(row.querySelectorAll('.chip')).find(c => c.innerText === val);
+                    if (match) match.classList.add('active');
+                }
+            } else {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            }
+        });
+    }
+
+    // Step (final): dari keranjang, lanjut ke pilih partner
+    function lanjutPilihPartner() {
+        if (keranjang.length === 0) {
+            Swal.fire({ icon: 'info', title: 'Keranjang kosong', text: 'Pilih minimal 1 layanan dulu ya', confirmButtonColor: '#ff4081' });
+            return;
+        }
+        document.getElementById('title-service-list').innerText = `Pilih Partner (${keranjang.length} layanan)`;
         navigasi('screen-gamer-list');
     }
 
     function pilihRinUntukOrder() {
-        renderFormDinamis();
+        renderRingkasanOrder();
         navigasi('screen-order');
     }
 
-    // Step 2: Halaman Order form dinamis (richer per-service UI)
+    // Render form untuk 1 layanan (dipakai di screen-detail-layanan, sebelum masuk keranjang)
     function renderFormDinamis() {
         const meta = serviceMeta[selectedLayanan] || { icon: 'fa-sparkles', color: '#9c27b0' };
-        document.getElementById('sb-icon-symbol').className = 'fa-solid ' + meta.icon;
-        document.getElementById('sb-icon-symbol').parentElement.style.color = meta.color;
-        document.getElementById('sb-service-name').innerText = selectedLayanan || '-';
+        const iconClass = meta.brand ? 'fa-brands' : 'fa-solid';
+        document.getElementById('sbd-icon-symbol').className = iconClass + ' ' + meta.icon;
+        document.getElementById('sbd-icon-symbol').parentElement.style.color = meta.color;
+        document.getElementById('sbd-service-name').innerText = selectedLayanan || '-';
 
-        const formDiv = document.getElementById('dynamic-form');
+        const formDiv = document.getElementById('dynamic-form-detail');
+        const noteBox = document.getElementById('dynamic-note-detail');
         let html = '';
 
         if (selectedLayanan === 'Nonton Bareng' || selectedLayanan === 'Nobar') {
             html += `
                 <label class="input-label"><i class="fa-solid fa-clapperboard" style="color:#2e7d32;"></i> Nonton apa?</label>
-                <input type="text" id="input-1" class="custom-input" placeholder="Misal: Netflix, Bioskop...">
-                <div class="input-hint">Judul film / platform yang mau ditonton bareng</div>
+                <div class="chip-row" id="chip-row-1">
+                    <div class="chip active" onclick="pilihChip(this,'chip-row-1')">Agent Kim Reactivated</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Pride and Prejudice</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Bullet Train Explosion</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Perfect Stranger</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Lainnya</div>
+                </div>
 
-                <label class="input-label"><i class="fa-regular fa-clock" style="color:#2e7d32;"></i> Jam berapa?</label>
-                <input type="time" id="input-2" class="custom-input">
+                <label class="input-label"><i class="fa-regular fa-pen-to-square" style="color:#2e7d32;"></i> Film lainnya?</label>
+                <input type="text" id="input-2" class="custom-input" placeholder="Isi kalau mau nonton film lain">
+                <div class="input-hint">Boleh dikosongin kalau udah pilih dari opsi di atas</div>
 
                 <label class="input-label">Mode nonton</label>
-                <div class="chip-row" id="chip-row-1">
-                    <div class="chip active" onclick="pilihChip(this,'chip-row-1')">Video Call</div>
-                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Watch Party</div>
-                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Voice Only</div>
+                <div class="chip-row" id="chip-row-2">
+                    <div class="chip active" onclick="pilihChip(this,'chip-row-2')">Discord</div>
                 </div>
             `;
-        } else if (selectedLayanan === 'Mabar ML') {
+        } else if (selectedLayanan === 'Mabar') {
             html += `
                 <label class="input-label"><i class="fa-regular fa-clock" style="color:#1565c0;"></i> Jam main?</label>
                 <input type="time" id="input-1" class="custom-input">
 
-                <label class="input-label">Role favorit</label>
+                <label class="input-label">Mau main apa?</label>
                 <div class="chip-row" id="chip-row-1">
-                    <div class="chip active" onclick="pilihChip(this,'chip-row-1')">Core</div>
-                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">EXP</div>
-                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Jungle</div>
-                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Roam</div>
-                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Gold Lane</div>
+                    <div class="chip active" onclick="pilihChip(this,'chip-row-1')">Roblox</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">PUBG</div>
                 </div>
 
                 <label class="input-label">Catatan</label>
-                <input type="text" id="input-2" class="custom-input" placeholder="Misal: Aku pick core ya">
+                <input type="text" id="input-2" class="custom-input" placeholder="Misal: Main map horror yu">
             `;
-        } else if (selectedLayanan === 'Sleep Call') {
+        } else if (selectedLayanan === 'Spotify Sesi') {
             html += `
-                <label class="input-label"><i class="fa-regular fa-clock" style="color:#6a1b9a;"></i> Mulai jam berapa?</label>
-                <input type="time" id="input-1" class="custom-input">
-
-                <label class="input-label">Durasi</label>
+                <label class="input-label"><i class="fa-regular fa-clock" style="color:#6a1b9a;"></i> Mau kapan?</label>
                 <div class="chip-row" id="chip-row-1">
-                    <div class="chip active" onclick="pilihChip(this,'chip-row-1')">30 menit</div>
-                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">1 jam</div>
-                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Sampai ketiduran</div>
+                    <div class="chip active" onclick="pilihChip(this,'chip-row-1')">Malam ini</div>
+                    <div class="chip" onclick="pilihChip(this,'chip-row-1')">Besok</div>
                 </div>
 
                 <label class="input-label">Detail Request</label>
-                <textarea id="input-2" class="custom-input" rows="2" placeholder="Misal: mau diceritain dongeng dulu"></textarea>
+                <textarea id="input-2" class="custom-input" rows="2" placeholder="Misal: full album laufey gasi"></textarea>
             `;
-        } else if (selectedLayanan === 'Buka Kado' || selectedLayanan === 'Tiup Lilin') {
+        } else if (selectedLayanan === 'Buka Kado') {
+            html += ``;
+            noteBox.className = 'aca-note-box';
+            noteBox.innerHTML = `<i class="fa-solid fa-heart"></i><div><b>Little note from Aca:</b> kalo kadonya belum dateng sabar yaaa hehe, ekspedisi nya lelet. Jangan lupa kalo udah dateng kabarin dan unboxing sama sama.</div>`;
+        } else if (selectedLayanan === 'Tiup Lilin') {
             html += `
                 <label class="input-label"><i class="fa-regular fa-clock" style="color:#c2185b;"></i> Jam sesi?</label>
                 <input type="time" id="input-1" class="custom-input">
@@ -943,12 +1180,203 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
                 <textarea id="input-1" class="custom-input" rows="3" placeholder="Tulis catatan buat Leyzaa..."></textarea>
             `;
         }
+
+        if (selectedLayanan !== 'Buka Kado') {
+            noteBox.className = 'order-note-box';
+            noteBox.innerHTML = `<i class="fa-solid fa-circle-info"></i><div>Isi detail sejelas mungkin biar Leyzaa bisa siapin semuanya sebelum sesi mulai. Semua request bersifat privat, cuma kamu dan Leyzaa yang lihat.</div>`;
+        }
+
         formDiv.innerHTML = html;
+
+        const hint = document.getElementById('cart-count-hint');
+        if (hint) hint.innerText = keranjang.length;
+
+        const btn = document.getElementById('btn-tambah-keranjang');
+        if (btn) btn.innerText = editIndex >= 0 ? 'Simpan Perubahan' : 'Tambah ke Keranjang';
     }
 
     function pilihChip(el, rowId) {
         document.querySelectorAll('#' + rowId + ' .chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
+    }
+
+    // Ambil ringkasan teks detail dari form yang sedang aktif, sesuai layanan.
+    // Setiap hasil juga menyertakan `values` (buat isi ulang form pas edit) dan
+    // `missing` (daftar nama field wajib yang masih kosong, buat validasi).
+    function ambilDetailLayananSaatIni() {
+        const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+        const getChip = (rowId) => { const el = document.querySelector('#' + rowId + ' .chip.active'); return el ? el.innerText : ''; };
+
+        if (selectedLayanan === 'Nonton Bareng' || selectedLayanan === 'Nobar') {
+            const filmLain = getVal('input-2');
+            const filmPilihan = getChip('chip-row-1');
+            const film = filmLain || (filmPilihan === 'Lainnya' ? '' : filmPilihan);
+            const mode = getChip('chip-row-2');
+            const missing = [];
+            if (!film) missing.push('film yang mau ditonton');
+            return {
+                lines: [`Film: ${film || '-'}`, `Mode nonton: ${mode || '-'}`],
+                display: `🎬 ${film || 'Belum pilih film'} • ${mode || '-'}`,
+                values: { 'chip-row-1': filmPilihan, 'input-2': filmLain, 'chip-row-2': mode },
+                missing
+            };
+        } else if (selectedLayanan === 'Mabar') {
+            const jam = getVal('input-1');
+            const game = getChip('chip-row-1');
+            const catatan = getVal('input-2');
+            const missing = [];
+            if (!jam) missing.push('jam main');
+            return {
+                lines: [`Jam: ${jam || '-'}`, `Game: ${game || '-'}`, `Catatan: ${catatan || '-'}`],
+                display: `🎮 ${game || '-'} • ${jam || 'jam belum diisi'}`,
+                values: { 'input-1': jam, 'chip-row-1': game, 'input-2': catatan },
+                missing
+            };
+        } else if (selectedLayanan === 'Spotify Sesi') {
+            const kapan = getChip('chip-row-1');
+            const detail = getVal('input-2');
+            return {
+                lines: [`Waktu: ${kapan || '-'}`, `Detail: ${detail || '-'}`],
+                display: `🎧 ${kapan || '-'}${detail ? ' • ' + detail : ''}`,
+                values: { 'chip-row-1': kapan, 'input-2': detail },
+                missing: []
+            };
+        } else if (selectedLayanan === 'Buka Kado') {
+            return { lines: [], display: `🎁 Sesuai catatan dari Aca`, values: {}, missing: [] };
+        } else if (selectedLayanan === 'Tiup Lilin') {
+            const jam = getVal('input-1');
+            const detail = getVal('input-2');
+            const missing = [];
+            if (!jam) missing.push('jam sesi');
+            return {
+                lines: [`Jam: ${jam || '-'}`, `Detail: ${detail || '-'}`],
+                display: `🕯️ ${jam || 'jam belum diisi'}${detail ? ' • ' + detail : ''}`,
+                values: { 'input-1': jam, 'input-2': detail },
+                missing
+            };
+        } else {
+            const detail = getVal('input-1');
+            return {
+                lines: [`Detail: ${detail || '-'}`],
+                display: detail || 'Tanpa detail tambahan',
+                values: { 'input-1': detail },
+                missing: []
+            };
+        }
+    }
+
+    function tambahKeKeranjang() {
+        const detail = ambilDetailLayananSaatIni();
+
+        if (detail.missing && detail.missing.length > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Tunggu dulu',
+                html: `Isi <b>${detail.missing.join(', ')}</b> dulu ya sebelum dimasukin ke keranjang.`,
+                confirmButtonColor: '#ff4081'
+            });
+            return;
+        }
+
+        const isEdit = editIndex >= 0;
+        const item = { layanan: selectedLayanan, lines: detail.lines, display: detail.display, values: detail.values };
+
+        if (isEdit) {
+            keranjang[editIndex] = item;
+        } else {
+            keranjang.push(item);
+        }
+        editIndex = -1;
+
+        updateCartBadge();
+        tampilkanKonfirmasiKeranjang(isEdit ? 'Perubahan disimpan!' : 'Ditambahkan!', isEdit ? `${selectedLayanan} berhasil diperbarui` : `${selectedLayanan} masuk ke keranjang`);
+        setTimeout(() => { navigasi('screen-keranjang'); renderKeranjang(); }, 900);
+    }
+
+    // Popup konfirmasi custom (menggantikan tampilan default SweetAlert) biar
+    // gaya visualnya nyatu sama tampilan aplikasi.
+    function tampilkanKonfirmasiKeranjang(title, text) {
+        Swal.fire({
+            title,
+            text,
+            timer: 1200,
+            showConfirmButton: false,
+            showClass: { popup: 'swal-pop-in' },
+            hideClass: { popup: 'swal-pop-out' },
+            customClass: {
+                popup: 'app-confirm-popup',
+                title: 'app-confirm-title',
+                htmlContainer: 'app-confirm-text'
+            },
+            icon: 'success',
+            iconHtml: '<i class="fa-solid fa-circle-check"></i>'
+        });
+    }
+
+    function hapusDariKeranjang(idx) {
+        keranjang.splice(idx, 1);
+        updateCartBadge();
+        renderKeranjang();
+    }
+
+    function updateCartBadge() {
+        const badge = document.getElementById('home-cart-badge');
+        if (badge) {
+            badge.innerText = keranjang.length;
+            badge.classList.toggle('zero', keranjang.length === 0);
+        }
+    }
+
+    function renderKeranjang() {
+        const list = document.getElementById('keranjang-list');
+        const empty = document.getElementById('keranjang-empty');
+        const bottom = document.getElementById('keranjang-bottom');
+        const addMore = document.getElementById('add-more-row');
+        const countEl = document.getElementById('keranjang-total-count');
+
+        if (keranjang.length === 0) {
+            list.innerHTML = '';
+            empty.classList.add('show');
+            bottom.style.display = 'none';
+            addMore.style.display = 'none';
+            return;
+        }
+
+        empty.classList.remove('show');
+        bottom.style.display = 'flex';
+        addMore.style.display = 'block';
+        countEl.innerText = keranjang.length;
+
+        list.innerHTML = keranjang.map((item, idx) => {
+            const meta = serviceMeta[item.layanan] || { icon: 'fa-sparkles', color: '#9c27b0' };
+            const iconClass = meta.brand ? 'fa-brands' : 'fa-solid';
+            return `
+                <div class="keranjang-item">
+                    <div class="ki-top">
+                        <div class="ki-service"><i class="${iconClass} ${meta.icon}" style="color:${meta.color};"></i> ${item.layanan}</div>
+                        <div class="ki-actions">
+                            <i class="fa-solid fa-pen ki-edit" onclick="editKeranjang(${idx})"></i>
+                            <i class="fa-solid fa-trash-can ki-remove" onclick="hapusDariKeranjang(${idx})"></i>
+                        </div>
+                    </div>
+                    <div class="ki-detail">${item.display}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderRingkasanOrder() {
+        const list = document.getElementById('order-summary-list');
+        list.innerHTML = keranjang.map(item => {
+            const meta = serviceMeta[item.layanan] || { icon: 'fa-sparkles', color: '#9c27b0' };
+            const iconClass = meta.brand ? 'fa-brands' : 'fa-solid';
+            return `
+                <div class="osl-item">
+                    <div class="osl-name"><i class="${iconClass} ${meta.icon}" style="color:${meta.color};"></i>&nbsp; ${item.layanan}</div>
+                    <div class="osl-detail">${item.display}</div>
+                </div>
+            `;
+        }).join('');
     }
 
     /* ---------- Rival "trigger" mechanic ----------
@@ -1022,23 +1450,24 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
     }
 
     function kirimOrderWA() {
-        let val1 = document.getElementById('input-1') ? document.getElementById('input-1').value : '';
-        let val2 = document.getElementById('input-2') ? document.getElementById('input-2').value : '';
-
-        if (!val1) {
-            Swal.fire({ icon: 'warning', title: 'Oops', text: 'Lengkapi form dulu ya', confirmButtonColor: '#ff4081' });
+        if (keranjang.length === 0) {
+            Swal.fire({ icon: 'warning', title: 'Oops', text: 'Keranjang kosong, pilih layanan dulu ya', confirmButtonColor: '#ff4081' });
             return;
         }
 
-        let pesan = `Halo Leyzaa! Aku order layanan *${selectedLayanan}* ya.%0A%0A`;
-        if (selectedLayanan === 'Nonton Bareng' || selectedLayanan === 'Nobar') pesan += `- Film: ${val1}%0A- Jam: ${val2}`;
-        else if (selectedLayanan === 'Mabar ML') pesan += `- Jam: ${val1}%0A- Notes: ${val2}`;
-        else if (selectedLayanan === 'Sleep Call') pesan += `- Jam mulai: ${val1}%0A- Detail: ${val2}`;
-        else if (selectedLayanan === 'Buka Kado' || selectedLayanan === 'Tiup Lilin') pesan += `- Jam: ${val1}%0A- Detail: ${val2}`;
-        else pesan += `- Detail: ${val1}`;
+        let pesan = `Halo Leyzaa! Aku mau order ${keranjang.length} layanan ya:%0A%0A`;
+        keranjang.forEach((item, idx) => {
+            pesan += `${idx + 1}. *${item.layanan}*%0A`;
+            item.lines.forEach(line => { pesan += `   - ${line}%0A`; });
+            pesan += `%0A`;
+        });
 
-        let noWA = "6281234567890";
+        let noWA = "628979014390";
         window.open(`https://wa.me/${noWA}?text=${pesan}`, '_blank');
+
+        // Kosongkan keranjang setelah order terkirim
+        keranjang = [];
+        updateCartBadge();
     }
 </script>
 
