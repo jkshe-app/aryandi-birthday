@@ -525,7 +525,7 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
         <h3 class="section-title">Popular Services</h3>
         <div class="grid-menu">
             <div class="menu-item" onclick="bukaListGamer('Mabar')"><div class="menu-icon bg-ml"><i class="fa-solid fa-gamepad"></i></div><span>Mabar</span></div>
-            <div class="menu-item" onclick="bukaListGamer('Teman Curhat')"><div class="menu-icon bg-curhat"><i class="fa-regular fa-comment-dots"></i></div><span>Curhat</span></div>
+            <div class="menu-item" onclick="bukaListGamer('Nyanyi')"><div class="menu-icon bg-curhat"><i class="fa-solid fa-music"></i></div><span>Nyanyi</span></div>
             <div class="menu-item" onclick="bukaListGamer('Nonton Bareng')"><div class="menu-icon bg-movie"><i class="fa-solid fa-film"></i></div><span>Nobar</span></div>
             <div class="menu-item" onclick="bukaListGamer('Spotify Sesi')"><div class="menu-icon bg-sleep"><i class="fa-brands fa-spotify"></i></div><span>Spotify Sesi</span></div>
             <div class="menu-item" onclick="bukaListGamer('Tiup Lilin')"><div class="menu-icon bg-cake"><i class="fa-solid fa-cake-candles"></i></div><span>Tiup Lilin</span></div>
@@ -889,7 +889,7 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
 
     const serviceMeta = {
         'Mabar':           { icon: 'fa-gamepad',        color: '#1565c0' },
-        'Teman Curhat':    { icon: 'fa-comment-dots',    color: '#ef6c00' },
+        'Nyanyi':          { icon: 'fa-music',           color: '#ef6c00' },
         'Nonton Bareng':   { icon: 'fa-film',            color: '#2e7d32' },
         'Spotify Sesi':    { icon: 'fa-spotify',         color: '#6a1b9a', brand: true },
         'Tiup Lilin':      { icon: 'fa-cake-candles',    color: '#c2185b' },
@@ -1168,11 +1168,8 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
             noteBox.innerHTML = `<i class="fa-solid fa-heart"></i><div><b>Little note from Aca:</b> kalo kadonya belum dateng sabar yaaa hehe, ekspedisi nya lelet. Jangan lupa kalo udah dateng kabarin dan unboxing sama sama.</div>`;
         } else if (selectedLayanan === 'Tiup Lilin') {
             html += `
-                <label class="input-label"><i class="fa-regular fa-clock" style="color:#c2185b;"></i> Jam sesi?</label>
-                <input type="time" id="input-1" class="custom-input">
-
                 <label class="input-label">Detail Request</label>
-                <textarea id="input-2" class="custom-input" rows="3" placeholder="Tulis catatan buat Leyzaa..."></textarea>
+                <textarea id="input-1" class="custom-input" rows="3" placeholder="Tulis catatan buat Leyzaa..."></textarea>
             `;
         } else {
             html += `
@@ -1244,15 +1241,12 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
         } else if (selectedLayanan === 'Buka Kado') {
             return { lines: [], display: `🎁 Sesuai catatan dari Aca`, values: {}, missing: [] };
         } else if (selectedLayanan === 'Tiup Lilin') {
-            const jam = getVal('input-1');
-            const detail = getVal('input-2');
-            const missing = [];
-            if (!jam) missing.push('jam sesi');
+            const detail = getVal('input-1');
             return {
-                lines: [`Jam: ${jam || '-'}`, `Detail: ${detail || '-'}`],
-                display: `🕯️ ${jam || 'jam belum diisi'}${detail ? ' • ' + detail : ''}`,
-                values: { 'input-1': jam, 'input-2': detail },
-                missing
+                lines: [`Detail: ${detail || '-'}`],
+                display: `🕯️ ${detail || 'Tanpa detail tambahan'}`,
+                values: { 'input-1': detail },
+                missing: []
             };
         } else {
             const detail = getVal('input-1');
