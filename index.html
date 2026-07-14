@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Lita - Birthday Edition</title>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -151,6 +152,37 @@ body { background-color: #efeef1; display: flex; justify-content: center; align-
 .bg-gift { background: #fff8e1; color: #f57f17; }
 .bg-wish { background: #e0f7fa; color: #00838f; }
 .bg-more { background: #f5f5f5; color: #616161; }
+
+/* --- Menu highlight: draws the eye to "Tiup Lilin" without a screenshot markup --- */
+.menu-item-highlight { position: relative; }
+.menu-icon-highlight {
+    position: relative;
+    animation: menuHighlightPulse 1.8s ease-in-out infinite;
+    box-shadow: 0 0 0 0 rgba(255, 64, 129, 0.55);
+}
+@keyframes menuHighlightPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 64, 129, 0.5); transform: scale(1); }
+    50% { box-shadow: 0 0 0 9px rgba(255, 64, 129, 0); transform: scale(1.08); }
+}
+.menu-icon-highlight::after {
+    content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    border: 2px solid #ff4081; opacity: 0.7;
+    animation: menuHighlightRing 1.8s ease-in-out infinite;
+}
+@keyframes menuHighlightRing {
+    0% { transform: scale(0.9); opacity: 0.9; }
+    70% { transform: scale(1.35); opacity: 0; }
+    100% { transform: scale(1.35); opacity: 0; }
+}
+.menu-highlight-label { color: #d81b60 !important; font-weight: 800 !important; }
+.menu-highlight-badge {
+    position: absolute; top: -6px; right: 2px;
+    background: linear-gradient(90deg, #ff4081, #ff8a65); color: #fff;
+    font-size: 8.5px; font-weight: 800; padding: 2px 6px; border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(255,64,129,0.5);
+    animation: menuBadgeBounce 1.8s ease-in-out infinite;
+}
+@keyframes menuBadgeBounce { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-3px) rotate(4deg); } }
 
 .banner-row { display: flex; gap: 10px; padding: 20px; }
 .banner { flex: 1; border-radius: 12px; padding: 12px; position: relative; overflow: hidden; color: white; }
@@ -450,6 +482,181 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
 .nav-item.active svg.icon-game { fill: url(#game-gradient); fill-opacity: 0.16; stroke: #7c4dff; stroke-width: 2.2; width: 25px; height: 25px; }
 .chat-badge { position: absolute; top: 6px; right: 4px; background: #ff3b30; color: white; font-size: 9px; font-weight: bold; width: 15px; height: 15px; border-radius: 50%; display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
 
+/* ============================================================
+   === SCREEN: TIUP LILIN 3D (masterpiece birthday moment) ===
+   ============================================================ */
+#screen-tiup-lilin-3d { background: linear-gradient(180deg, #fdf6ff 0%, #f3e8ff 30%, #eee3fb 60%, #f6e9f2 100%); overflow: hidden; }
+#screen-tiup-lilin-3d .screen-scroll { padding-bottom: 0; overflow: hidden; display: flex; flex-direction: column; }
+
+.tl3d-stage { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* --- Mic permission gate (shown before tap-to-start hands off) --- */
+.tl3d-mic-gate {
+    position: absolute; inset: 0; z-index: 40;
+    background: radial-gradient(circle at 50% 30%, #fdf0f7 0%, #eadcf9 55%, #fdf6ff 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 30px; transition: opacity 0.5s ease;
+}
+.tl3d-mic-gate.hide { opacity: 0; pointer-events: none; }
+.tl3d-mic-orb {
+    width: 84px; height: 84px; border-radius: 50%; margin-bottom: 22px;
+    background: radial-gradient(circle, #ffb0cf 0%, #cbb2f0 70%, transparent 100%);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 40px rgba(255,158,199,0.45);
+    animation: tl3dOrbPulse 2.2s ease-in-out infinite;
+}
+.tl3d-mic-orb i { font-size: 30px; color: #fff; }
+@keyframes tl3dOrbPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+.tl3d-mic-title { color: #6b3f7a; font-size: 19px; font-weight: 800; margin-bottom: 10px; }
+.tl3d-mic-sub { color: #8a6f96; font-size: 12.5px; font-weight: 600; line-height: 1.7; margin-bottom: 26px; max-width: 300px; }
+.tl3d-mic-btn {
+    background: linear-gradient(90deg, #ff8fb3, #c3a6f0); color: #fff; font-weight: 800; font-size: 13.5px;
+    padding: 13px 30px; border-radius: 30px; border: none; box-shadow: 0 6px 20px rgba(255,143,179,0.4); cursor: pointer;
+}
+.tl3d-mic-denied { color: #d1668a; font-size: 11.5px; font-weight: 700; margin-top: 16px; max-width: 280px; line-height: 1.6; }
+
+/* --- Header (transparent, floats over canvas) --- */
+.tl3d-header { position: absolute; top: 0; left: 0; width: 100%; z-index: 20; display: flex; align-items: center; padding: 15px 18px; }
+.tl3d-header i { font-size: 19px; color: #7a5c8a; cursor: pointer; background: rgba(255,255,255,0.65); width: 34px; height: 34px; border-radius: 50%; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 8px rgba(150,100,180,0.15); }
+.tl3d-header h2 { color: #6b3f7a; font-size: 14px; font-weight: 800; margin-left: 12px; opacity: 0.9; letter-spacing: 0.02em; }
+
+/* --- 3D canvas container --- */
+#tl3d-canvas-wrap { position: relative; flex: 1; min-height: 0; }
+#tl3d-canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; position: relative; z-index: 1; }
+
+.tl3d-ambient-fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.tl3d-bg-glow {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 25%, rgba(255,203,224,0.4) 0%, transparent 55%),
+                radial-gradient(ellipse at 20% 70%, rgba(255,224,140,0.22) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 65%, rgba(160,200,250,0.25) 0%, transparent 50%);
+}
+
+/* Animated starfield/sparkle so the pastel background never reads as empty */
+.tl3d-stars { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.tl3d-star { position: absolute; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(255,255,255,0.9); animation: tl3dTwinkle 2.4s ease-in-out infinite; }
+@keyframes tl3dTwinkle { 0%, 100% { opacity: 0.25; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1.15); } }
+.tl3d-drift-glow { position: absolute; border-radius: 50%; filter: blur(18px); pointer-events: none; animation: tl3dDrift 9s ease-in-out infinite; }
+@keyframes tl3dDrift { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(14px,-18px) scale(1.15); } }
+
+/* --- Instruction pill (top, always visible, never overlapped by nav) --- */
+.tl3d-instruction {
+    position: absolute; top: 58px; left: 50%; transform: translateX(-50%); z-index: 15;
+    background: rgba(255,255,255,0.75); backdrop-filter: blur(6px);
+    color: #6b3f7a; font-size: 11.5px; font-weight: 700; padding: 9px 16px; border-radius: 20px;
+    border: 1px solid rgba(200,170,220,0.4); text-align: center; white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(150,100,180,0.12);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.tl3d-instruction.fade { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+
+/* --- Voice level bar: now sits directly under the instruction pill, top area,
+   so it's always visible and never gets hidden behind the bottom nav --- */
+.tl3d-meter-wrap {
+    position: absolute; top: 104px; left: 0; width: 100%; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; padding: 0 26px;
+    transition: opacity 0.4s ease;
+}
+.tl3d-meter-wrap.fade-out { opacity: 0; pointer-events: none; }
+.tl3d-meter-label { color: #8a6f96; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; display:flex; align-items:center; gap:6px; }
+.tl3d-meter-label i { color: #ff9ec1; }
+.tl3d-meter-track {
+    width: 100%; max-width: 300px; height: 14px; border-radius: 10px;
+    background: rgba(255,255,255,0.6); border: 1px solid rgba(200,170,220,0.35);
+    overflow: hidden; position: relative;
+}
+.tl3d-meter-fill {
+    height: 100%; width: 0%; border-radius: 10px;
+    background: linear-gradient(90deg, #aee0f7, #c9b6f5 55%, #ffb0cf 100%);
+    transition: width 0.08s linear;
+    box-shadow: 0 0 10px rgba(200,170,220,0.45);
+}
+.tl3d-meter-threshold {
+    position: absolute; top: -3px; bottom: -3px; width: 3px; background: #fff;
+    box-shadow: 0 0 6px rgba(255,255,255,0.9); border-radius: 2px;
+}
+.tl3d-meter-hint { color: #a68fb0; font-size: 9.5px; font-weight: 700; margin-top: 7px; text-align: center; }
+
+/* --- Finale overlay: birthday message + confetti --- */
+.tl3d-finale {
+    position: absolute; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 35%, rgba(200,170,230,0.35) 0%, rgba(255,245,250,0.97) 65%);
+    opacity: 0; pointer-events: none; transition: opacity 0.7s ease;
+    overflow-y: auto; padding: 20px 0;
+}
+.tl3d-finale.show { opacity: 1; pointer-events: auto; }
+.tl3d-finale-card { text-align: center; padding: 0 30px; position: relative; z-index: 3; max-width: 360px; margin: 0 auto; }
+.tl3d-finale-icon {
+    width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 18px;
+    background: linear-gradient(135deg, #ffd479, #ff9ec1); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 30px rgba(255,180,140,0.4); transform: scale(0.4); opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.175,0.885,0.32,1.4), opacity 0.5s ease;
+}
+.tl3d-finale.show .tl3d-finale-icon { transform: scale(1); opacity: 1; transition-delay: 0.15s; }
+.tl3d-finale-icon i { font-size: 28px; color: #fff; }
+.tl3d-finale-title {
+    color: #7a4a8a; font-size: 21px; font-weight: 900; margin-bottom: 12px; letter-spacing: 0.01em;
+    opacity: 0; transform: translateY(10px); transition: all 0.6s ease;
+}
+.tl3d-finale.show .tl3d-finale-title { opacity: 1; transform: translateY(0); transition-delay: 0.32s; }
+.tl3d-finale-text {
+    color: #6b5570; font-size: 12.5px; font-weight: 600; line-height: 1.8; margin-bottom: 22px;
+    opacity: 0; transform: translateY(10px); transition: all 0.6s ease;
+    text-align: left; background: rgba(255,255,255,0.6); padding: 16px 18px; border-radius: 16px;
+    border: 1px solid rgba(200,170,220,0.35);
+}
+.tl3d-finale.show .tl3d-finale-text { opacity: 1; transform: translateY(0); transition-delay: 0.46s; }
+.tl3d-finale-text.tl3d-mood-shift {
+    color: #a03b5a; background: rgba(255,225,235,0.75); border-color: rgba(255,150,180,0.4);
+}
+.tl3d-finale-btn {
+    background: linear-gradient(90deg, #ff9ec1, #c3a6f0); color: #fff; font-weight: 800; font-size: 13px;
+    padding: 12px 28px; border-radius: 30px; border: none; box-shadow: 0 6px 20px rgba(255,158,199,0.4); cursor: pointer;
+    opacity: 0; transform: translateY(10px); transition: all 0.6s ease;
+}
+.tl3d-finale.show .tl3d-finale-btn { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
+
+.tl3d-finale-btn-ghost {
+    display: inline-block; margin-top: 10px;
+    background: transparent; color: #a68fb0; font-weight: 700; font-size: 12px;
+    padding: 10px 24px; border-radius: 30px; border: 1px solid rgba(166,143,176,0.35); cursor: pointer;
+    opacity: 0; transform: translateY(10px); transition: all 0.6s ease;
+}
+.tl3d-finale.show .tl3d-finale-btn-ghost { opacity: 1; transform: translateY(0); transition-delay: 0.72s; }
+
+.tl3d-confetti-canvas { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+
+/* --- Quiz overlay --- */
+.tl3d-quiz-card {
+    text-align: center; padding: 26px 26px 24px; position: relative; z-index: 3;
+    max-width: 340px; width: 88%; margin: 0 auto; background: rgba(255,255,255,0.85);
+    border-radius: 22px; border: 1px solid rgba(200,170,220,0.4); box-shadow: 0 10px 30px rgba(150,100,180,0.18);
+    opacity: 0; transform: translateY(14px) scale(0.97); transition: all 0.45s cubic-bezier(0.175,0.885,0.32,1.2);
+}
+.tl3d-quiz-overlay-show .tl3d-quiz-card { opacity: 1; transform: translateY(0) scale(1); }
+.tl3d-quiz-progress { width: 100%; height: 6px; border-radius: 6px; background: rgba(200,170,220,0.25); overflow: hidden; margin-bottom: 12px; }
+.tl3d-quiz-progress-fill { height: 100%; width: 20%; border-radius: 6px; background: linear-gradient(90deg, #aee0f7, #ff9ec1); transition: width 0.5s ease; }
+.tl3d-quiz-counter { color: #a68fb0; font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
+.tl3d-quiz-question { color: #6b3f7a; font-size: 15.5px; font-weight: 800; line-height: 1.5; margin-bottom: 18px; min-height: 44px; }
+.tl3d-quiz-input {
+    width: 100%; border: 1px solid rgba(200,170,220,0.45); border-radius: 14px; padding: 12px 14px;
+    font-size: 13px; font-weight: 600; color: #4a3a50; background: #fff; resize: none;
+    font-family: 'Nunito', sans-serif; margin-bottom: 12px; outline: none;
+}
+.tl3d-quiz-input:focus { border-color: #c3a6f0; box-shadow: 0 0 0 3px rgba(195,166,240,0.15); }
+.tl3d-quiz-feedback { font-size: 12px; font-weight: 700; line-height: 1.6; margin-bottom: 14px; min-height: 0; text-align: left; }
+.tl3d-quiz-feedback.wrong { color: #d1467a; }
+.tl3d-quiz-feedback.correct { color: #2e9e6b; }
+.tl3d-quiz-submit { width: 100%; opacity: 1; transform: none; }
+.tl3d-quiz-instruction-note { color: #8a6f96; font-size: 12px; font-weight: 600; line-height: 1.7; margin-bottom: 18px; text-align: left; }
+
+/* --- Smoke wisp puff after candle extinguishes (DOM/CSS, layered over canvas) --- */
+.tl3d-smoke { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: rgba(220,220,225,0.55); pointer-events: none; z-index: 12; animation: tl3dSmokeRise 1.8s ease-out forwards; }
+@keyframes tl3dSmokeRise {
+    0% { transform: translate(0,0) scale(1); opacity: 0.6; }
+    100% { transform: translate(var(--sx,10px), -90px) scale(4); opacity: 0; }
+}
+
 </style>
 </head>
 <body>
@@ -528,7 +735,11 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
             <div class="menu-item" onclick="bukaListGamer('Nyanyi')"><div class="menu-icon bg-curhat"><i class="fa-solid fa-music"></i></div><span>Nyanyi</span></div>
             <div class="menu-item" onclick="bukaListGamer('Nonton Bareng')"><div class="menu-icon bg-movie"><i class="fa-solid fa-film"></i></div><span>Nobar</span></div>
             <div class="menu-item" onclick="bukaListGamer('Spotify Sesi')"><div class="menu-icon bg-sleep"><i class="fa-brands fa-spotify"></i></div><span>Spotify Sesi</span></div>
-            <div class="menu-item" onclick="bukaListGamer('Tiup Lilin')"><div class="menu-icon bg-cake"><i class="fa-solid fa-cake-candles"></i></div><span>Tiup Lilin</span></div>
+            <div class="menu-item menu-item-highlight" onclick="bukaListGamer('Tiup Lilin')">
+                <div class="menu-icon bg-cake menu-icon-highlight"><i class="fa-solid fa-cake-candles"></i></div>
+                <span class="menu-highlight-label">Tiup Lilin</span>
+                <div class="menu-highlight-badge">Klik!</div>
+            </div>
             <div class="menu-item" onclick="bukaListGamer('Buka Kado')"><div class="menu-icon bg-gift"><i class="fa-solid fa-gift"></i></div><span>Buka Kado</span></div>
             <div class="menu-item" onclick="bukaListGamer('Make a Wish')"><div class="menu-icon bg-wish"><i class="fa-solid fa-wand-magic-sparkles"></i></div><span>Make a Wish</span></div>
             <div class="menu-item"><div class="menu-icon bg-more"><i class="fa-solid fa-table-cells-large"></i></div><span>Lainnya</span></div>
@@ -607,6 +818,93 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
             <div style="font-size:12px; color:#555;">Bisa tambah layanan lain juga</div>
         </div>
         <button class="btn-order" id="btn-tambah-keranjang" onclick="tambahKeKeranjang()">Tambah ke Keranjang</button>
+    </div>
+</div>
+
+<!-- ===================== SCREEN: TIUP LILIN 3D (masterpiece) ===================== -->
+<div id="screen-tiup-lilin-3d" class="screen">
+    <div class="screen-scroll">
+        <div class="tl3d-stage">
+
+            <div class="tl3d-header">
+                <i class="fa-solid fa-angle-left" onclick="tl3dExitScreen()"></i>
+                <h2>Tiup Lilin</h2>
+            </div>
+
+            <div id="tl3d-canvas-wrap" onclick="tl3dManualTap()">
+                <div class="tl3d-bg-glow"></div>
+                <div class="tl3d-stars" id="tl3d-stars"></div>
+                <div class="tl3d-ambient-fx" id="tl3d-ambient-fx"></div>
+                <div class="tl3d-instruction" id="tl3d-instruction">Tarik napas, lalu TERIAK atau tiup kenceng ke HP-mu 🎤</div>
+            </div>
+
+            <div class="tl3d-meter-wrap" id="tl3d-meter-wrap">
+                <div class="tl3d-meter-label"><i class="fa-solid fa-wind"></i> Kekuatan Tiupan</div>
+                <div class="tl3d-meter-track">
+                    <div class="tl3d-meter-fill" id="tl3d-meter-fill"></div>
+                    <div class="tl3d-meter-threshold" id="tl3d-meter-threshold" style="left: 62%;"></div>
+                </div>
+                <div class="tl3d-meter-hint">Suara pelan ga akan mempan — teriak atau tiup sekencang-kencangnya!</div>
+            </div>
+
+            <!-- Mic permission gate -->
+            <div class="tl3d-mic-gate" id="tl3d-mic-gate">
+                <div class="tl3d-mic-orb"><i class="fa-solid fa-microphone"></i></div>
+                <div class="tl3d-mic-title">Siap-siap tiup lilinnya!</div>
+                <div class="tl3d-mic-sub">Izinkan akses microphone dulu ya, biar kamu bisa tiup lilin ulang tahun ini beneran pakai suara/tiupanmu sendiri.</div>
+                <button class="tl3d-mic-btn" id="tl3d-mic-btn" onclick="tl3dRequestMic()"><i class="fa-solid fa-microphone"></i>&nbsp; Aktifkan Microphone</button>
+                <div class="tl3d-mic-denied" id="tl3d-mic-denied" style="display:none;">
+                    Akses mic ditolak/tidak tersedia. Kamu tetap bisa coba lagi, atau ketuk lilinnya 3x buat niup manual.
+                    <br><br>
+                    <button class="tl3d-mic-btn" style="padding:10px 22px; font-size:12px;" onclick="tl3dProceedWithoutMic()">Lanjut Tanpa Microphone</button>
+                </div>
+            </div>
+
+            <!-- Make a Wish gate: shown after mic step, before blowing is allowed -->
+            <div class="tl3d-mic-gate" id="tl3d-wish-gate" style="display:none;">
+                <div class="tl3d-mic-orb" style="background: radial-gradient(circle, #ffe08a 0%, #ffb0cf 70%, transparent 100%); box-shadow: 0 0 40px rgba(255,208,138,0.5);"><i class="fa-solid fa-star"></i></div>
+                <div class="tl3d-mic-title">Sebelum tiup lilinnya...</div>
+                <div class="tl3d-mic-sub">Pejamkan mata sebentar, dan buat satu <b>make a wish</b> di dalam hati kamu. Gapapa gaperlu diomongin atau diketik, cukup dirasain aja dalam hati 🤍<br><br>Kalau udah selesai make a wish-nya, baru boleh tiup lilinnya ya.</div>
+                <button class="tl3d-mic-btn" id="tl3d-wish-btn" onclick="tl3dConfirmWish()"><i class="fa-solid fa-wand-magic-sparkles"></i>&nbsp; Udah, aku udah make a wish</button>
+            </div>
+
+            <!-- Finale: birthday message + confetti, then mood-shift message -->
+            <div class="tl3d-finale" id="tl3d-finale">
+                <canvas class="tl3d-confetti-canvas" id="tl3d-confetti-canvas"></canvas>
+                <div class="tl3d-finale-card">
+                    <div class="tl3d-finale-icon"><i class="fa-solid fa-cake-candles"></i></div>
+                    <div class="tl3d-finale-title" id="tl3d-finale-title">Happy Birthday, Sayangku! 🎉</div>
+                    <div class="tl3d-finale-text" id="tl3d-finale-text">Umur 25 tahun ini semoga makin bahagia, makin dikuatin, dan semua doa baik yang kamu panjatkan tadi beneran dikabulkan yaa. Leyzaa selalu di sini buat kamu ✨</div>
+                    <button class="tl3d-finale-btn" id="tl3d-finale-btn" onclick="tl3dFinaleNext()">Lanjut</button>
+                </div>
+            </div>
+
+            <!-- Quiz overlay: 5 questions, shown after the finale message -->
+            <div class="tl3d-finale" id="tl3d-quiz-overlay">
+                <div class="tl3d-quiz-card">
+                    <div class="tl3d-quiz-progress" id="tl3d-quiz-progress">
+                        <div class="tl3d-quiz-progress-fill" id="tl3d-quiz-progress-fill"></div>
+                    </div>
+                    <div class="tl3d-quiz-counter" id="tl3d-quiz-counter">Pertanyaan 1 dari 5</div>
+                    <div class="tl3d-quiz-question" id="tl3d-quiz-question">-</div>
+                    <textarea class="tl3d-quiz-input" id="tl3d-quiz-input" placeholder="Ketik jawaban kamu di sini..." rows="2"></textarea>
+                    <div class="tl3d-quiz-feedback" id="tl3d-quiz-feedback"></div>
+                    <button class="tl3d-finale-btn tl3d-quiz-submit" id="tl3d-quiz-submit" onclick="tl3dQuizSubmit()">Jawab</button>
+                </div>
+            </div>
+
+            <!-- Quiz complete: send result to WA -->
+            <div class="tl3d-finale" id="tl3d-quiz-done">
+                <div class="tl3d-finale-card">
+                    <div class="tl3d-finale-icon" style="background: linear-gradient(135deg, #b8ecd2, #ff9ec1);"><i class="fa-solid fa-trophy"></i></div>
+                    <div class="tl3d-finale-title">Yeayy, semua bener! 🏆</div>
+                    <div class="tl3d-finale-text">Selamat, kamu berhasil jawab semua pertanyaan dengan benar! Sekarang kamu boleh minta hadiahnya langsung ke aku dengan klik tombol di bawah ini ya~</div>
+                    <button class="tl3d-finale-btn" onclick="tl3dSendQuizResult()"><i class="fa-brands fa-whatsapp"></i>&nbsp; Minta Hadiahku</button>
+                    <button class="tl3d-finale-btn-ghost" onclick="tl3dExitScreen()"><i class="fa-solid fa-house"></i>&nbsp; Kembali ke Beranda</button>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 
@@ -1054,6 +1352,12 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
 
     // Step 1: Klik Menu Beranda -> Buka form isi detail utk layanan ini (mode keranjang)
     function bukaListGamer(namaLayanan) {
+        // Tiup Lilin dapat pengalaman spesial: layar 3D interaktif, bukan form biasa
+        if (namaLayanan === 'Tiup Lilin') {
+            navigasi('screen-tiup-lilin-3d');
+            tl3dEnterScreen();
+            return;
+        }
         selectedLayanan = namaLayanan;
         editIndex = -1;
         navigasi('screen-detail-layanan');
@@ -1441,6 +1745,918 @@ textarea.custom-input { resize: none; font-family: 'Nunito', sans-serif; }
         document.querySelectorAll('#rin-cover-dots span').forEach((d, i) => {
             d.classList.toggle('active', i === rinSlideIndex);
         });
+    }
+
+
+    /* ============================================================
+       === TIUP LILIN 3D — Three.js cake/candle + mic-blow logic ===
+       ============================================================ */
+    const TL3D = {
+        renderer: null, scene: null, camera: null,
+        flameGroup: null, flameCone: null, flameGlow: null, wickGlowLight: null,
+        candleTopY: 0,
+        audioCtx: null, analyser: null, micStream: null, dataArray: null,
+        rafId: null, micActive: false,
+        blowLevel: 0,          // smoothed 0..1 current mic level
+        blowThreshold: 0.62,   // MEDIUM bar: needs a real blow/shout, but reachable without straining
+        sustainMs: 320,        // must hold above threshold this long
+        aboveThresholdSince: null,
+        extinguished: false,
+        tapBlowCount: 0,       // fallback manual-tap counter if mic denied
+        initialized: false,
+        wishConfirmed: false,  // gate: blowing only allowed after make-a-wish is confirmed
+        devTabActive: false    // dev fallback: holding/tapping Tab nudges the meter, same rules as real blow
+    };
+
+    function tl3dEnterScreen() {
+        // Reset state every time the screen opens
+        TL3D.extinguished = false;
+        TL3D.blowLevel = 0;
+        TL3D.aboveThresholdSince = null;
+        TL3D.tapBlowCount = 0;
+        TL3D.wishConfirmed = false;
+        document.getElementById('tl3d-finale').classList.remove('show');
+        document.getElementById('tl3d-quiz-overlay').classList.remove('show', 'tl3d-quiz-overlay-show');
+        document.getElementById('tl3d-quiz-done').classList.remove('show');
+        document.getElementById('tl3d-meter-wrap').classList.remove('fade-out');
+        document.getElementById('tl3d-instruction').classList.remove('fade');
+        document.getElementById('tl3d-instruction').innerText = 'Tarik napas, lalu TERIAK atau tiup kenceng ke HP-mu 🎤';
+        document.getElementById('tl3d-mic-gate').classList.remove('hide');
+        document.getElementById('tl3d-mic-gate').style.display = '';
+        document.getElementById('tl3d-mic-denied').style.display = 'none';
+        document.getElementById('tl3d-wish-gate').style.display = 'none';
+        document.getElementById('tl3d-wish-gate').classList.remove('hide');
+
+        tl3dResetQuizState();
+
+        if (!TL3D.initialized) {
+            tl3dInitScene();
+            TL3D.initialized = true;
+        } else {
+            tl3dRelightCandle();
+        }
+        tl3dStartRenderLoop();
+    }
+
+    function tl3dExitScreen() {
+        tl3dStopMic();
+        tl3dStopRenderLoop();
+        navigasi('screen-home');
+    }
+
+    // After the mic step resolves (granted or denied), show the Make-a-Wish gate
+    // before the person is allowed to blow. Called from both the mic success path
+    // and the denied fallback so the flow always passes through this step.
+    function tl3dShowWishGate() {
+        document.getElementById('tl3d-wish-gate').style.display = 'flex';
+        document.getElementById('tl3d-wish-gate').classList.remove('hide');
+    }
+
+    function tl3dConfirmWish() {
+        TL3D.wishConfirmed = true;
+        const gate = document.getElementById('tl3d-wish-gate');
+        gate.classList.add('hide');
+        setTimeout(() => { gate.style.display = 'none'; }, 500);
+    }
+
+    // Dev-only helper: hold/tap Tab to simulate blowing (since shouting isn't
+    // practical during development). Mirrors the real mic threshold/sustain logic —
+    // this is intentionally undocumented in the UI, dev-only.
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab' && document.getElementById('screen-tiup-lilin-3d').classList.contains('active')) {
+            e.preventDefault();
+            TL3D.devTabActive = true;
+        }
+    });
+    window.addEventListener('keyup', (e) => {
+        if (e.key === 'Tab') TL3D.devTabActive = false;
+    });
+
+    /* ---------- THREE.JS SCENE: 3D cake + candle, built from primitives ---------- */
+    function tl3dInitScene() {
+        const wrap = document.getElementById('tl3d-canvas-wrap');
+        const w = wrap.clientWidth, h = wrap.clientHeight;
+
+        const scene = new THREE.Scene();
+        TL3D.scene = scene;
+
+        // Camera pulled back further + angled down more so the ENTIRE cake
+        // (base to topper) fits comfortably in frame with room to breathe,
+        // instead of the lens sitting right against the cake's body.
+        const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+        camera.position.set(0, 3.4, 9.2);
+        camera.lookAt(0, 0.55, 0);
+        TL3D.camera = camera;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(w, h);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        wrap.insertBefore(renderer.domElement, wrap.firstChild);
+        TL3D.renderer = renderer;
+
+        // --- Lighting ---
+        scene.add(new THREE.AmbientLight(0x6a5a8a, 0.6));
+        const key = new THREE.DirectionalLight(0xffe4c4, 1.0);
+        key.position.set(3, 6, 4);
+        scene.add(key);
+        const rim = new THREE.DirectionalLight(0xb388ff, 0.55);
+        rim.position.set(-4, 2, -3);
+        scene.add(rim);
+        const fillFront = new THREE.DirectionalLight(0xffffff, 0.35);
+        fillFront.position.set(0, 1, 6);
+        scene.add(fillFront);
+
+        // --- Cake group: everything built around x=0,z=0 as the true center,
+        // with the MAIN candle sitting dead-center on top (not offset to an edge) ---
+        const cakeGroup = new THREE.Group();
+
+        // Plate under the cake for grounding/realism
+        const plate = new THREE.Mesh(
+            new THREE.CylinderGeometry(2.55, 2.6, 0.08, 48),
+            new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.25, metalness: 0.3 })
+        );
+        plate.position.y = -0.05;
+        cakeGroup.add(plate);
+
+        const bottomLayer = new THREE.Mesh(
+            new THREE.CylinderGeometry(2.1, 2.25, 1.0, 48),
+            new THREE.MeshStandardMaterial({ color: 0x7fc4e0, roughness: 0.55, metalness: 0.03 })
+        );
+        bottomLayer.position.y = 0.5;
+        cakeGroup.add(bottomLayer);
+
+        const bottomFrosting = new THREE.Mesh(
+            new THREE.CylinderGeometry(2.17, 2.17, 0.2, 48),
+            new THREE.MeshStandardMaterial({ color: 0xa8dced, roughness: 0.35 })
+        );
+        bottomFrosting.position.y = 1.0;
+        cakeGroup.add(bottomFrosting);
+
+        const topLayer = new THREE.Mesh(
+            new THREE.CylinderGeometry(1.5, 1.65, 0.8, 48),
+            new THREE.MeshStandardMaterial({ color: 0x93cfe6, roughness: 0.5 })
+        );
+        topLayer.position.y = 1.5;
+        cakeGroup.add(topLayer);
+
+        const topFrosting = new THREE.Mesh(
+            new THREE.CylinderGeometry(1.56, 1.56, 0.16, 48),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35 })
+        );
+        topFrosting.position.y = 1.98;
+        cakeGroup.add(topFrosting);
+
+        // Organic piped frosting swirls (torus-knot-ish blobs via overlapping spheres)
+        // around BOTH tiers so it doesn't read flat/rigid.
+        function addPipedSwirl(radius, y, count, scale, color) {
+            const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.4 });
+            for (let i = 0; i < count; i++) {
+                const a = (i / count) * Math.PI * 2;
+                const blob = new THREE.Group();
+                const s1 = new THREE.Mesh(new THREE.SphereGeometry(0.11 * scale, 10, 10), mat);
+                s1.position.y = 0;
+                const s2 = new THREE.Mesh(new THREE.SphereGeometry(0.085 * scale, 10, 10), mat);
+                s2.position.y = 0.1 * scale;
+                s2.position.x = 0.02;
+                const s3 = new THREE.Mesh(new THREE.SphereGeometry(0.06 * scale, 8, 8), mat);
+                s3.position.y = 0.18 * scale;
+                blob.add(s1, s2, s3);
+                blob.position.set(Math.cos(a) * radius, y, Math.sin(a) * radius);
+                blob.rotation.y = -a;
+                cakeGroup.add(blob);
+            }
+        }
+        addPipedSwirl(2.02, 1.14, 18, 1.0, 0xffd3e6);   // bottom tier edge — pastel pink
+        addPipedSwirl(1.5, 2.1, 14, 0.75, 0xfff2b8);     // top tier edge — pastel yellow
+
+        // Extra piped border hugging the base of the bottom tier (grounds the cake,
+        // stops it reading like a plain cylinder sitting on the plate)
+        addPipedSwirl(2.22, 0.06, 22, 0.85, 0xffe6f0);
+
+        // Soft drip streaks down the top tier (small stretched capsule-like blobs)
+        const dripMat = new THREE.MeshStandardMaterial({ color: 0xd9c8f5, roughness: 0.35 });
+        for (let i = 0; i < 10; i++) {
+            const a = (i / 10) * Math.PI * 2 + 0.15;
+            const drip = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), dripMat);
+            drip.scale.set(1, 1.6, 1);
+            drip.position.set(Math.cos(a) * 1.58, 1.75 - Math.random() * 0.25, Math.sin(a) * 1.58);
+            cakeGroup.add(drip);
+        }
+
+        // Scattered sugar pearls + small stars across the flat top surface, so the
+        // top doesn't read as bare/flat between the candles and the "25" badge.
+        const pearlColors = [0xffb6d5, 0xffe08a, 0xaee0f7, 0xffffff, 0xd6c3f7];
+        for (let i = 0; i < 26; i++) {
+            const rr = 0.35 + Math.random() * 1.05;
+            const aa = Math.random() * Math.PI * 2;
+            const px = Math.cos(aa) * rr;
+            const pz = Math.sin(aa) * rr;
+            // keep clear of the candle cluster in the middle-back and the badge up front
+            if (Math.abs(px) < 0.5 && pz < 0.4 && pz > -0.7) continue;
+            const pearl = new THREE.Mesh(
+                new THREE.SphereGeometry(0.035 + Math.random() * 0.03, 8, 8),
+                new THREE.MeshStandardMaterial({ color: pearlColors[i % pearlColors.length], roughness: 0.3, metalness: 0.15 })
+            );
+            pearl.position.set(px, 2.07, pz);
+            cakeGroup.add(pearl);
+        }
+
+        // Small pastel dot accents pressed into the bottom tier's body, breaking up
+        // the plain cylinder wall the same way the reference cakes use polka dots.
+        const dotColors = [0xffe6f0, 0xffffff, 0xfff2b8];
+        for (let i = 0; i < 16; i++) {
+            const a = (i / 16) * Math.PI * 2 + 0.2;
+            const dot = new THREE.Mesh(
+                new THREE.SphereGeometry(0.075, 10, 10),
+                new THREE.MeshStandardMaterial({ color: dotColors[i % dotColors.length], roughness: 0.35 })
+            );
+            dot.position.set(Math.cos(a) * 2.16, 0.35 + (i % 2) * 0.35, Math.sin(a) * 2.16);
+            dot.scale.set(1, 1, 0.5);
+            dot.lookAt(dot.position.x * 2, dot.position.y, dot.position.z * 2);
+            cakeGroup.add(dot);
+        }
+
+        // --- "25" topper rebuilt as a proper 3D badge instead of a flat plane:
+        // a rounded gold-rim disc (built from a cylinder) sits behind a raised
+        // white plate, with the number texture on top and a soft drop-shadow
+        // plane behind everything for real depth/pop instead of looking pasted-on. ---
+        const badgeGroup = new THREE.Group();
+
+        // Drop shadow (soft dark plane, slightly behind + below the badge)
+        const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.12 });
+        const shadowDisc = new THREE.Mesh(new THREE.CircleGeometry(0.78, 32), shadowMat);
+        shadowDisc.position.set(0.04, -0.05, -0.04);
+        badgeGroup.add(shadowDisc);
+
+        // Gold rim ring behind the white plate for a "medal" feel
+        const rimMat = new THREE.MeshStandardMaterial({ color: 0xffd479, roughness: 0.35, metalness: 0.4 });
+        const badgeRim = new THREE.Mesh(new THREE.CylinderGeometry(0.76, 0.76, 0.09, 40), rimMat);
+        badgeRim.rotation.x = Math.PI / 2;
+        badgeRim.position.z = -0.05;
+        badgeGroup.add(badgeRim);
+
+        // Raised white plate the number sits on (gives real thickness/depth)
+        const plateMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+        const badgePlate = new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.68, 0.1, 40), plateMat);
+        badgePlate.rotation.x = Math.PI / 2;
+        badgeGroup.add(badgePlate);
+
+        const numCanvas = document.createElement('canvas');
+        numCanvas.width = 320; numCanvas.height = 320;
+        const nctx = numCanvas.getContext('2d');
+        nctx.clearRect(0, 0, 320, 320);
+        nctx.font = '900 176px Nunito, sans-serif';
+        nctx.textAlign = 'center';
+        nctx.textBaseline = 'middle';
+        // Soft under-shadow for extra pop before the main fill
+        nctx.save();
+        nctx.translate(4, 6);
+        nctx.fillStyle = 'rgba(200,90,130,0.35)';
+        nctx.fillText('25', 160, 168);
+        nctx.restore();
+        // Gradient fill for the digits themselves
+        const numGrad = nctx.createLinearGradient(0, 60, 0, 260);
+        numGrad.addColorStop(0, '#ff9ec1');
+        numGrad.addColorStop(1, '#e0508a');
+        nctx.fillStyle = numGrad;
+        nctx.lineWidth = 7;
+        nctx.strokeStyle = 'rgba(255,255,255,0.95)';
+        nctx.strokeText('25', 160, 168);
+        nctx.fillText('25', 160, 168);
+        const numTexture = new THREE.CanvasTexture(numCanvas);
+        numTexture.needsUpdate = true;
+        const numPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(1.3, 1.3),
+            new THREE.MeshBasicMaterial({ map: numTexture, transparent: true })
+        );
+        numPlane.position.z = 0.056;
+        badgeGroup.add(numPlane);
+
+        badgeGroup.position.set(0, 2.2, 1.6);
+        badgeGroup.rotation.x = -0.22;
+        cakeGroup.add(badgeGroup);
+        TL3D.numPlane = badgeGroup;
+
+        cakeGroup.position.y = -1.75;
+        scene.add(cakeGroup);
+        TL3D.cakeGroup = cakeGroup;
+
+        // --- Candle builder (reused for main centered candle + decorative ones) ---
+        function buildCandle({ stripeColor = 0xff4081 } = {}) {
+            const group = new THREE.Group();
+            const body = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.11, 0.12, 1.0, 20),
+                new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.45 })
+            );
+            body.position.y = 0.5;
+            group.add(body);
+
+            const stripeMat = new THREE.MeshStandardMaterial({ color: stripeColor, roughness: 0.4 });
+            for (let i = 0; i < 4; i++) {
+                const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.025, 1.0, 0.025), stripeMat);
+                const a = (i / 4) * Math.PI * 2;
+                stripe.position.set(Math.cos(a) * 0.115, 0.5, Math.sin(a) * 0.115);
+                stripe.rotation.y = -a;
+                group.add(stripe);
+            }
+
+            const wick = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.018, 0.018, 0.12, 8),
+                new THREE.MeshStandardMaterial({ color: 0x2b2018 })
+            );
+            wick.position.y = 1.06;
+            group.add(wick);
+            return group;
+        }
+
+        // MAIN candle: dead center on top of the cake, set slightly BACK so the
+        // "25" plaque in front never overlaps it from the camera's view.
+        const mainCandle = buildCandle({ stripeColor: 0xff9ec1 });
+        mainCandle.position.set(0, 2.06, 0);
+        cakeGroup.add(mainCandle);
+
+        // Flame: layered cones that flicker + bend/stretch with mic blowLevel.
+        // Anchored to the SAME x/z as the main candle wick, sitting right above it.
+        const flameGroup = new THREE.Group();
+        const flameOuter = new THREE.Mesh(
+            new THREE.ConeGeometry(0.12, 0.4, 16),
+            new THREE.MeshBasicMaterial({ color: 0xff8a3d, transparent: true, opacity: 0.88 })
+        );
+        flameOuter.position.y = 0.2;
+        flameGroup.add(flameOuter);
+
+        const flameInner = new THREE.Mesh(
+            new THREE.ConeGeometry(0.065, 0.24, 16),
+            new THREE.MeshBasicMaterial({ color: 0xfff59d, transparent: true, opacity: 0.96 })
+        );
+        flameInner.position.y = 0.17;
+        flameGroup.add(flameInner);
+
+        flameGroup.position.set(0, 3.05, 0); // top of mainCandle wick, true center
+        cakeGroup.add(flameGroup);
+        TL3D.flameGroup = flameGroup;
+        TL3D.flameOuter = flameOuter;
+        TL3D.flameInner = flameInner;
+        TL3D.flameBaseY = 3.15;
+        TL3D.flameBaseX = 0;
+        TL3D.flameBaseZ = 0;
+
+        const wickGlowLight = new THREE.PointLight(0xffb347, 1.7, 6, 2);
+        wickGlowLight.position.set(0, 3.14, 0);
+        cakeGroup.add(wickGlowLight);
+        TL3D.wickGlowLight = wickGlowLight;
+
+        // Decorative side candles (always lit, never the target) — pushed further
+        // out to the sides/back so they never sit in front of or crowd the main
+        // candle or the "25" plaque from the camera's viewpoint.
+        const deco1 = buildCandle({ stripeColor: 0xaee0f7 });
+        deco1.position.set(-1.45, 2.02, -0.3);
+        deco1.scale.set(0.68, 0.68, 0.68);
+        cakeGroup.add(deco1);
+        const decoFlame1 = tl3dBuildStaticFlame();
+        decoFlame1.position.set(-1.45, 2.78, -0.3);
+        cakeGroup.add(decoFlame1);
+
+        const deco2 = buildCandle({ stripeColor: 0xffe08a });
+        deco2.position.set(1.4, 2.02, -0.35);
+        deco2.scale.set(0.68, 0.68, 0.68);
+        cakeGroup.add(deco2);
+        const decoFlame2 = tl3dBuildStaticFlame();
+        decoFlame2.position.set(1.4, 2.76, -0.35);
+        cakeGroup.add(decoFlame2);
+
+        TL3D.decoFlames = [decoFlame1, decoFlame2];
+        TL3D.clock = new THREE.Clock();
+
+        tl3dBuildStarfield();
+        tl3dBuildAmbientFx();
+        window.addEventListener('resize', tl3dOnResize);
+    }
+
+    // Small always-lit flame for decorative side candles (no blow physics, just flicker)
+    function tl3dBuildStaticFlame() {
+        const g = new THREE.Group();
+        const outer = new THREE.Mesh(
+            new THREE.ConeGeometry(0.1, 0.32, 12),
+            new THREE.MeshBasicMaterial({ color: 0xff8a3d, transparent: true, opacity: 0.85 })
+        );
+        outer.position.y = 0.16;
+        g.add(outer);
+        const inner = new THREE.Mesh(
+            new THREE.ConeGeometry(0.052, 0.18, 12),
+            new THREE.MeshBasicMaterial({ color: 0xfff59d, transparent: true, opacity: 0.95 })
+        );
+        inner.position.y = 0.13;
+        g.add(inner);
+        return g;
+    }
+
+    // Idle ambient confetti + balloons drifting in the background throughout the
+    // whole screen (not just the finale), reusing the same .confetto/.bday-balloon
+    // classes/keyframes already defined for the homepage hero — keeps it on-brand.
+    function tl3dBuildAmbientFx() {
+        const holder = document.getElementById('tl3d-ambient-fx');
+        if (!holder || holder.dataset.built) return;
+        holder.dataset.built = '1';
+        const confettiColors = ['#ff9ec1', '#ffe08a', '#aee0f7', '#d6c3f7', '#ffffff'];
+        let html = '';
+        for (let i = 0; i < 26; i++) {
+            const color = confettiColors[i % confettiColors.length];
+            const left = (Math.random() * 100).toFixed(1);
+            const size = (5 + Math.random() * 5).toFixed(1);
+            const delay = (Math.random() * 6).toFixed(2);
+            const dur = (4.5 + Math.random() * 3).toFixed(2);
+            html += `<div class="confetto" style="left:${left}%; width:${size}px; height:${size * 0.4}px; background:${color}; animation-duration:${dur}s; animation-delay:${delay}s;"></div>`;
+        }
+        const balloonColors = ['#ff9ec1', '#aee0f7', '#ffe08a', '#d6c3f7', '#b8ecd2'];
+        for (let i = 0; i < 7; i++) {
+            const color = balloonColors[i % balloonColors.length];
+            const left = (4 + i * 14 + Math.random() * 8).toFixed(1);
+            const delay = (i * 1.3).toFixed(2);
+            html += `<div class="bday-balloon" style="left:${left}%; background:${color}; animation-duration:${(7 + Math.random() * 2).toFixed(2)}s; animation-delay:${delay}s;"></div>`;
+        }
+        holder.innerHTML = html;
+    }
+
+
+    function tl3dBuildStarfield() {
+        const holder = document.getElementById('tl3d-stars');
+        if (!holder || holder.dataset.built) return;
+        holder.dataset.built = '1';
+        let html = '';
+        for (let i = 0; i < 34; i++) {
+            const size = (Math.random() * 2.2 + 1).toFixed(1);
+            const left = (Math.random() * 100).toFixed(1);
+            const top = (Math.random() * 70).toFixed(1);
+            const delay = (Math.random() * 2.4).toFixed(2);
+            const dur = (2 + Math.random() * 2.2).toFixed(2);
+            html += `<div class="tl3d-star" style="width:${size}px;height:${size}px;left:${left}%;top:${top}%;animation-delay:${delay}s;animation-duration:${dur}s;"></div>`;
+        }
+        const glowColors = ['rgba(255,111,165,0.16)', 'rgba(124,77,255,0.16)', 'rgba(79,195,247,0.14)'];
+        for (let i = 0; i < 3; i++) {
+            const size = 140 + Math.random() * 80;
+            const left = (Math.random() * 80).toFixed(1);
+            const top = (Math.random() * 55).toFixed(1);
+            const delay = (Math.random() * 4).toFixed(2);
+            html += `<div class="tl3d-drift-glow" style="width:${size}px;height:${size}px;left:${left}%;top:${top}%;background:${glowColors[i % glowColors.length]};animation-delay:${delay}s;"></div>`;
+        }
+        holder.innerHTML = html;
+    }
+
+    function tl3dOnResize() {
+        if (!TL3D.renderer) return;
+        const wrap = document.getElementById('tl3d-canvas-wrap');
+        const w = wrap.clientWidth, h = wrap.clientHeight;
+        TL3D.camera.aspect = w / h;
+        TL3D.camera.updateProjectionMatrix();
+        TL3D.renderer.setSize(w, h);
+    }
+
+    function tl3dRelightCandle() {
+        if (TL3D.flameGroup) TL3D.flameGroup.visible = true;
+        if (TL3D.wickGlowLight) TL3D.wickGlowLight.intensity = 1.7;
+        TL3D.extinguished = false;
+    }
+
+    function tl3dStartRenderLoop() {
+        if (TL3D.rafId) cancelAnimationFrame(TL3D.rafId);
+        const loop = () => {
+            tl3dUpdateFrame();
+            TL3D.rafId = requestAnimationFrame(loop);
+        };
+        loop();
+    }
+
+    function tl3dStopRenderLoop() {
+        if (TL3D.rafId) cancelAnimationFrame(TL3D.rafId);
+        TL3D.rafId = null;
+    }
+
+    function tl3dUpdateFrame() {
+        if (!TL3D.renderer) return;
+        const t = TL3D.clock ? TL3D.clock.getElapsedTime() : 0;
+
+        // Sample mic level (or manual-tap fallback) into TL3D.blowLevel
+        tl3dSampleAudioLevel();
+
+        if (!TL3D.extinguished && TL3D.flameGroup && TL3D.wishConfirmed) {
+            // Natural flicker (sine + light randomness)
+            const flicker = Math.sin(t * 9) * 0.05 + Math.sin(t * 23) * 0.03 + (Math.random() - 0.5) * 0.03;
+            // Blow effect: bend + stretch flame away from "breath" direction, dim as it nears threshold
+            const blowBend = TL3D.blowLevel * 0.9;      // radians tilt
+            const blowStretch = 1 + TL3D.blowLevel * 0.8;
+            const blowShrink = 1 - TL3D.blowLevel * 0.4;
+
+            TL3D.flameGroup.rotation.x = blowBend + flicker * 0.4;
+            TL3D.flameGroup.rotation.z = Math.sin(t * 6) * 0.06;
+            TL3D.flameGroup.scale.set(blowShrink, blowStretch, blowShrink);
+            TL3D.flameGroup.position.y = TL3D.flameBaseY + flicker * 0.03;
+
+            if (TL3D.wickGlowLight) {
+                TL3D.wickGlowLight.intensity = (1.7 - TL3D.blowLevel * 1.0) + Math.sin(t * 15) * 0.08;
+            }
+
+            // Update meter UI
+            const pct = Math.max(0, Math.min(1, TL3D.blowLevel)) * 100;
+            const fillEl = document.getElementById('tl3d-meter-fill');
+            if (fillEl) fillEl.style.width = pct.toFixed(1) + '%';
+
+            // Sustain-above-threshold check -> extinguish
+            const nowMs = performance.now();
+            if (TL3D.blowLevel >= TL3D.blowThreshold) {
+                if (TL3D.aboveThresholdSince === null) TL3D.aboveThresholdSince = nowMs;
+                if (nowMs - TL3D.aboveThresholdSince >= TL3D.sustainMs) {
+                    tl3dExtinguishCandle();
+                }
+            } else {
+                TL3D.aboveThresholdSince = null;
+            }
+        }
+
+        // Decorative side-candle flames keep flickering gently regardless of blow state
+        if (TL3D.decoFlames) {
+            TL3D.decoFlames.forEach((f, i) => {
+                const off = i * 1.7;
+                const fl = Math.sin(t * 8 + off) * 0.04 + Math.sin(t * 19 + off) * 0.025;
+                f.rotation.z = fl * 0.5;
+                f.scale.setScalar(1 + fl * 0.3);
+            });
+        }
+
+        // gentle cake auto-rotate for that "wow" showcase feel
+        if (TL3D.cakeGroup) TL3D.cakeGroup.rotation.y = Math.sin(t * 0.35) * 0.18;
+
+        TL3D.renderer.render(TL3D.scene, TL3D.camera);
+    }
+
+    /* ---------- MIC CAPTURE: getUserMedia + AnalyserNode -> blowLevel ---------- */
+    async function tl3dRequestMic() {
+        const gate = document.getElementById('tl3d-mic-gate');
+        const deniedMsg = document.getElementById('tl3d-mic-denied');
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            TL3D.micStream = stream;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            TL3D.audioCtx = new AudioContext();
+            const source = TL3D.audioCtx.createMediaStreamSource(stream);
+            const analyser = TL3D.audioCtx.createAnalyser();
+            analyser.fftSize = 512;
+            analyser.smoothingTimeConstant = 0.75;
+            source.connect(analyser);
+            TL3D.analyser = analyser;
+            TL3D.dataArray = new Uint8Array(analyser.frequencyBinCount);
+            TL3D.micActive = true;
+            gate.classList.add('hide');
+            setTimeout(() => { gate.style.display = 'none'; tl3dShowWishGate(); }, 500);
+        } catch (err) {
+            deniedMsg.style.display = 'block';
+        }
+    }
+
+    // Manual fallback path: if mic is denied, tapping the candle still needs to
+    // pass through the wish gate first. Called once from the denied-state tap flow.
+    function tl3dProceedWithoutMic() {
+        const gate = document.getElementById('tl3d-mic-gate');
+        gate.classList.add('hide');
+        setTimeout(() => { gate.style.display = 'none'; tl3dShowWishGate(); }, 500);
+    }
+
+    function tl3dStopMic() {
+        if (TL3D.micStream) {
+            TL3D.micStream.getTracks().forEach(t => t.stop());
+            TL3D.micStream = null;
+        }
+        if (TL3D.audioCtx) {
+            TL3D.audioCtx.close();
+            TL3D.audioCtx = null;
+        }
+        TL3D.analyser = null;
+        TL3D.micActive = false;
+    }
+
+    function tl3dSampleAudioLevel() {
+        let raw = 0;
+        if (TL3D.devTabActive) {
+            // Dev-only fallback: holding Tab ramps the level up like a sustained blow,
+            // going through the exact same threshold/sustain check as the real mic.
+            raw = 1;
+        } else if (TL3D.micActive && TL3D.analyser && TL3D.dataArray) {
+            TL3D.analyser.getByteTimeDomainData(TL3D.dataArray);
+            // RMS of waveform deviation from center (128) -> blow/voice loudness proxy.
+            // Blowing directly into a phone mic produces strong low-frequency/broadband
+            // energy which reads as a high RMS here, similar to a loud sustained "hoo".
+            let sumSquares = 0;
+            for (let i = 0; i < TL3D.dataArray.length; i++) {
+                const v = (TL3D.dataArray[i] - 128) / 128;
+                sumSquares += v * v;
+            }
+            const rms = Math.sqrt(sumSquares / TL3D.dataArray.length);
+            // Normalize: moderate scaling. A normal talking voice (rms ~0.03-0.08)
+            // should barely move the meter; a real blow/shout (rms ~0.15-0.3+)
+            // should comfortably cross the threshold without needing to strain.
+            raw = Math.min(1, rms * 3.4);
+        } else if (TL3D.tapBlowCount > 0) {
+            // Manual fallback: each tap on the flame nudges the meter, decays over time
+            raw = TL3D.manualLevel || 0;
+        }
+
+        // Smooth toward raw value (attack faster than release, but not instant —
+        // a short random loud blip won't spike the meter to threshold immediately,
+        // rewarding a genuinely SUSTAINED shout/blow over a quick noise)
+        const smoothing = raw > TL3D.blowLevel ? 0.32 : 0.1;
+        TL3D.blowLevel = TL3D.blowLevel + (raw - TL3D.blowLevel) * smoothing;
+
+        // Decay manual tap level over time
+        if (TL3D.manualLevel) TL3D.manualLevel = Math.max(0, TL3D.manualLevel - 0.02);
+    }
+
+    // Manual fallback: tapping the canvas area 3x acts like blowing, in case mic is denied
+    function tl3dManualTap() {
+        if (TL3D.extinguished || !TL3D.wishConfirmed) return;
+        TL3D.tapBlowCount++;
+        TL3D.manualLevel = Math.min(1, (TL3D.manualLevel || 0) + 0.4);
+    }
+
+    function tl3dExtinguishCandle() {
+        if (TL3D.extinguished) return;
+        TL3D.extinguished = true;
+        TL3D.flameGroup.visible = false;
+        if (TL3D.wickGlowLight) TL3D.wickGlowLight.intensity = 0;
+
+        // Puff of smoke via CSS particles positioned over the wick's approx screen spot
+        const wrap = document.getElementById('tl3d-canvas-wrap');
+        for (let i = 0; i < 6; i++) {
+            const puff = document.createElement('div');
+            puff.className = 'tl3d-smoke';
+            puff.style.left = (wrap.clientWidth * 0.5 + (Math.random() * 30 - 15)) + 'px';
+            puff.style.top = (wrap.clientHeight * 0.34) + 'px';
+            puff.style.setProperty('--sx', (Math.random() * 40 - 20) + 'px');
+            puff.style.animationDelay = (i * 0.08) + 's';
+            wrap.appendChild(puff);
+            setTimeout(() => puff.remove(), 2200);
+        }
+
+        document.getElementById('tl3d-instruction').classList.add('fade');
+        document.getElementById('tl3d-meter-wrap').classList.add('fade-out');
+
+        tl3dStopMic();
+        setTimeout(tl3dShowFinale, 900);
+    }
+
+    /* ---------- Finale: birthday message + canvas confetti burst ---------- */
+    function tl3dShowFinale() {
+        const titleEl = document.getElementById('tl3d-finale-title');
+        const textEl = document.getElementById('tl3d-finale-text');
+        const btnEl = document.getElementById('tl3d-finale-btn');
+        titleEl.textContent = 'Yeayy! 🎉';
+        textEl.classList.remove('tl3d-mood-shift');
+        textEl.textContent = 'Semoga make a wish kamu tadi terkabul abis tiup lilin ini ya.';
+        btnEl.textContent = 'Lanjut';
+        TL3D.finaleStage = 1;
+        document.getElementById('tl3d-finale').classList.add('show');
+        tl3dRunConfetti();
+    }
+
+    // Two-stage finale: first the sweet "make a wish" line, then on tap it shifts
+    // into the mood-shift message, then continues into the quiz.
+    function tl3dFinaleNext() {
+        const titleEl = document.getElementById('tl3d-finale-title');
+        const textEl = document.getElementById('tl3d-finale-text');
+        const btnEl = document.getElementById('tl3d-finale-btn');
+
+        if (TL3D.finaleStage === 1) {
+            titleEl.textContent = 'Eh tapi...';
+            textEl.classList.add('tl3d-mood-shift');
+            textEl.textContent = 'Tp pukimak kau ya ai, dah ku bilang jangan dibuka jangan dibuka jangan dibuka sampe teriak aku loh. Pokoknya abis tanggal 15 ini aku bete sama kamu, kamu harus tanggung jawab, kalo gamau nanggepin bete aku berarti ga sayang aku lagi.';
+            btnEl.innerHTML = 'Aku Tanggung Jawab, Lanjut →';
+            TL3D.finaleStage = 2;
+            return;
+        }
+
+        // Move on to the quiz
+        document.getElementById('tl3d-finale').classList.remove('show');
+        tl3dStartQuiz();
+    }
+
+    function tl3dRunConfetti() {
+        const canvas = document.getElementById('tl3d-confetti-canvas');
+        const wrap = document.getElementById('tl3d-canvas-wrap').parentElement;
+        const w = wrap.clientWidth, h = wrap.clientHeight;
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+
+        const colors = ['#ff4081', '#b388ff', '#ffca28', '#4fc3f7', '#69f0ae'];
+        const pieces = [];
+        for (let i = 0; i < 90; i++) {
+            pieces.push({
+                x: Math.random() * w,
+                y: -20 - Math.random() * h * 0.5,
+                size: 4 + Math.random() * 6,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speedY: 2 + Math.random() * 3,
+                speedX: (Math.random() - 0.5) * 2,
+                rotation: Math.random() * Math.PI,
+                rotSpeed: (Math.random() - 0.5) * 0.2
+            });
+        }
+
+        let frame = 0;
+        const maxFrames = 260;
+        function drawFrame() {
+            ctx.clearRect(0, 0, w, h);
+            pieces.forEach(p => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.rotation += p.rotSpeed;
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+                ctx.restore();
+            });
+            frame++;
+            if (frame < maxFrames) {
+                requestAnimationFrame(drawFrame);
+            } else {
+                ctx.clearRect(0, 0, w, h);
+            }
+        }
+        drawFrame();
+    }
+
+    /* ============================================================
+       === QUIZ: 5 essay questions, keyword-matched, retry until correct ===
+       Each question has an ordered list of clue rules. On a wrong submit,
+       we check the rules top-to-bottom against what the user actually typed
+       and show the most specific matching clue — so partial answers get
+       nudged toward the missing piece instead of a flat "wrong" message.
+       The LAST rule in each list is the catch-all (matches anything) and
+       is only shown when nothing more specific applied.
+       ============================================================ */
+    const TL3D_QUIZ = [
+        {
+            q: 'Apa modus pertama kamu ke aku?',
+            // Correct = both "netflix" and "disney" present
+            isCorrect: (norm) => norm.includes('netflix') && norm.includes('disney'),
+            clues: [
+                { test: (norm) => norm.includes('netflix') && !norm.includes('disney'),
+                  msg: 'Udah bener setengah, "Netflix"-nya kesebut 👍 tapi ada 1 lagi platform streaming-nya, coba diinget lagi.' },
+                { test: (norm) => norm.includes('disney') && !norm.includes('netflix'),
+                  msg: 'Udah bener setengah, "Disney"-nya kesebut 👍 tapi ada 1 lagi platform streaming-nya, coba diinget lagi.' },
+                { test: () => true,
+                  msg: 'Salah tuh 🖕 ini soal modus jaman awal-awal dulu, ada hubungannya sama 2 akun premium streaming yang kamu tawarin.' }
+            ]
+        },
+        {
+            q: 'Kapan pertama kali pindah chat ke WA lagi sama aku?',
+            isCorrect: (norm) => /\b5\b/.test(norm) && (norm.includes('februari') || norm.includes('feb')) && norm.includes('2026'),
+            clues: [
+                { test: (norm) => (norm.includes('februari') || norm.includes('feb')) && norm.includes('2026') && !/\b5\b/.test(norm),
+                  msg: 'Bulan & tahunnya udah bener 👍 tanggalnya yang salah, coba diinget lagi tanggal berapa persisnya.' },
+                { test: (norm) => /\b5\b/.test(norm) && norm.includes('2026') && !(norm.includes('februari') || norm.includes('feb')),
+                  msg: 'Tanggal & tahunnya udah bener 👍 bulannya yang salah, coba diinget lagi.' },
+                { test: (norm) => /\b5\b/.test(norm) && (norm.includes('februari') || norm.includes('feb')) && !norm.includes('2026'),
+                  msg: 'Tanggal & bulannya udah bener 👍 tahunnya yang kelewat/salah, coba dicek lagi.' },
+                { test: (norm) => norm.includes('2026'),
+                  msg: 'Tahunnya bener 👍 tapi tanggal & bulannya masih meleset, coba diinget lagi bulan apa dan tanggal berapa.' },
+                { test: () => true,
+                  msg: 'Salah kimak 🖕 coba diinget-inget lagi, ini soal bulan awal tahun 2026, tanggal di minggu pertama bulan itu.' }
+            ]
+        },
+        {
+            q: 'Alasan pertama kali aku cemburuin kamu?',
+            isCorrect: (norm) => norm.includes('adik tingkat') || (norm.includes('adik') && norm.includes('tingkat')),
+            clues: [
+                { test: (norm) => norm.includes('bl') && !norm.includes('adik'),
+                  msg: 'Tempatnya udah bener arahnya 👍 tapi belum nyebut orangnya siapa yang bikin aku cemburu.' },
+                { test: (norm) => (norm.includes('adik') || norm.includes('tingkat')) && !(norm.includes('adik tingkat') || (norm.includes('adik') && norm.includes('tingkat'))),
+                  msg: 'Hampir bener, kamu udah di jalur yang tepat 👍 coba lengkapin lagi sebutannya siapa orangnya.' },
+                { test: () => true,
+                  msg: 'Salah tuh 🖕 ini soal orang di tempat kerja/kegiatan kamu, posisinya di bawah kamu (lebih junior).' }
+            ]
+        },
+        {
+            q: 'Skin favorite aku?',
+            isCorrect: (norm) => (norm.includes('m4') || norm.includes('splendor')) && (norm.includes('marmoris') || norm.includes('x-suit') || norm.includes('xsuit')),
+            clues: [
+                { test: (norm) => (norm.includes('m4') || norm.includes('splendor')) && !(norm.includes('marmoris') || norm.includes('x-suit') || norm.includes('xsuit')),
+                  msg: 'Nama skin senjatanya udah bener 👍 tapi ada 1 lagi, nama x-suit-nya belum kesebut.' },
+                { test: (norm) => (norm.includes('marmoris') || norm.includes('x-suit') || norm.includes('xsuit')) && !(norm.includes('m4') || norm.includes('splendor')),
+                  msg: 'X-suit-nya udah bener 👍 tapi nama skin senjatanya belum kesebut.' },
+                { test: () => true,
+                  msg: 'Salah 🖕 dua-duanya harus disebut: nama skin senjata (dimulai "M4") sama nama x-suit-nya (nama batu marmer).' }
+            ]
+        },
+        {
+            q: 'Ada sekelompok orang dikurung di satu ruangan gelap total tanpa jendela. Di dalam ruangan itu cuma ada 1 lilin, 1 lampu minyak, 1 tungku kayu, dan 1 korek api. Mereka cuma boleh menyalakan SATU barang itu duluan sebelum bisa menyalakan yang lain-lain. Barang apa yang mereka nyalakan pertama?',
+            isCorrect: (norm) => norm.includes('korek'),
+            clues: [
+                { test: (norm) => norm.includes('lilin') || norm.includes('lampu') || norm.includes('tungku'),
+                  msg: 'Coba dipikir ulang — ketiga barang yang kamu sebutin itu semuanya butuh sumber api dari LUAR biar bisa nyala. Barang apa di ruangan itu yang bisa bikin api sendiri tanpa butuh api lain duluan?' },
+                { test: () => true,
+                  msg: 'Salah, coba dipikir lagi pelan-pelan. Dari 4 barang itu, cuma 1 yang bisa langsung menghasilkan api tanpa perlu dinyalakan pakai barang lain dulu.' }
+            ]
+        }
+    ];
+
+    TL3D.quizIndex = 0;
+    TL3D.quizAnswers = [];
+
+    function tl3dResetQuizState() {
+        TL3D.quizIndex = 0;
+        TL3D.quizAnswers = [];
+        TL3D.finaleStage = 1;
+        const fb = document.getElementById('tl3d-quiz-feedback');
+        if (fb) { fb.textContent = ''; fb.className = 'tl3d-quiz-feedback'; }
+        const input = document.getElementById('tl3d-quiz-input');
+        if (input) input.value = '';
+    }
+
+    function tl3dStartQuiz() {
+        tl3dResetQuizState();
+        const overlay = document.getElementById('tl3d-quiz-overlay');
+        overlay.classList.add('show');
+        requestAnimationFrame(() => overlay.classList.add('tl3d-quiz-overlay-show'));
+        tl3dRenderQuizQuestion();
+    }
+
+    function tl3dRenderQuizQuestion() {
+        const item = TL3D_QUIZ[TL3D.quizIndex];
+        document.getElementById('tl3d-quiz-counter').textContent = `Pertanyaan ${TL3D.quizIndex + 1} dari ${TL3D_QUIZ.length}`;
+        document.getElementById('tl3d-quiz-progress-fill').style.width = (((TL3D.quizIndex) / TL3D_QUIZ.length) * 100) + '%';
+        document.getElementById('tl3d-quiz-question').textContent = item.q;
+        document.getElementById('tl3d-quiz-input').value = '';
+        const fb = document.getElementById('tl3d-quiz-feedback');
+        fb.textContent = '';
+        fb.className = 'tl3d-quiz-feedback';
+        document.getElementById('tl3d-quiz-submit').textContent = 'Jawab';
+    }
+
+    function tl3dNormalize(str) {
+        return (str || '').toLowerCase().trim().replace(/\s+/g, ' ');
+    }
+
+    // Returns the most relevant clue message for a wrong answer, by walking
+    // the question's clue rules top-to-bottom and using the first match.
+    function tl3dGetClue(item, norm) {
+        for (const rule of item.clues) {
+            if (rule.test(norm)) return rule.msg;
+        }
+        return 'Coba dijawab lagi ya.';
+    }
+
+    function tl3dQuizSubmit() {
+        const item = TL3D_QUIZ[TL3D.quizIndex];
+        const input = document.getElementById('tl3d-quiz-input');
+        const fb = document.getElementById('tl3d-quiz-feedback');
+        const userText = input.value;
+        const norm = tl3dNormalize(userText);
+
+        if (norm.length === 0) {
+            fb.className = 'tl3d-quiz-feedback wrong';
+            fb.textContent = 'Jawabannya diisi dulu ya.';
+            input.focus();
+            return;
+        }
+
+        const isCorrect = item.isCorrect(norm);
+
+        if (!isCorrect) {
+            fb.className = 'tl3d-quiz-feedback wrong';
+            fb.textContent = tl3dGetClue(item, norm);
+            input.focus();
+            return;
+        }
+
+        // Correct: store answer, brief success flash, move to next question
+        TL3D.quizAnswers.push({ q: item.q, a: userText.trim() });
+        fb.className = 'tl3d-quiz-feedback correct';
+        fb.textContent = 'Bener! 🎉';
+
+        setTimeout(() => {
+            TL3D.quizIndex++;
+            if (TL3D.quizIndex >= TL3D_QUIZ.length) {
+                document.getElementById('tl3d-quiz-progress-fill').style.width = '100%';
+                const overlay = document.getElementById('tl3d-quiz-overlay');
+                overlay.classList.remove('show', 'tl3d-quiz-overlay-show');
+                document.getElementById('tl3d-quiz-done').classList.add('show');
+            } else {
+                tl3dRenderQuizQuestion();
+            }
+        }, 700);
+    }
+
+    function tl3dSendQuizResult() {
+        let pesan = `Yeayy aku menang kuisnya! Udah aku jawab semua bener nih 🏆%0A%0A`;
+        TL3D.quizAnswers.forEach((item, idx) => {
+            pesan += `${idx + 1}. ${item.q}%0AJawabanku: ${item.a}%0A%0A`;
+        });
+        pesan += `Nah kan udah aku jawab bener semua, mana pap-nya dong 😏🖤`;
+
+        let noWA = "628979014390";
+        window.open(`https://wa.me/${noWA}?text=${pesan}`, '_blank');
     }
 
     function kirimOrderWA() {
